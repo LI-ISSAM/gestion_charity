@@ -399,7 +399,7 @@
             <div class="col-md-3 col-6">
                 <div class="stat-card">
                     <div class="stat-icon"
-                         style="background:#cfe2ff;">💰</div>
+                         style="background:#cfe2ff;"></div>
                     <div class="stat-number"
                          th:text="${totalCollected + ' €'}">0</div>
                     <div class="stat-label">Total collecté</div>
@@ -412,7 +412,7 @@
             <div class="col-md-3 col-6">
                 <div class="stat-card">
                     <div class="stat-icon"
-                         style="background:#f0e6ff;">👥</div>
+                         style="background:#f0e6ff;"></div>
                     <div class="stat-number"
                          th:text="${totalParticipants}">0</div>
                     <div class="stat-label">Participants</div>
@@ -424,7 +424,7 @@
             <div class="col-md-3 col-6">
                 <div class="stat-card">
                     <div class="stat-icon"
-                         style="background:#fff3cd;">👁️</div>
+                         style="background:#fff3cd;"></div>
                     <div class="stat-number"
                          th:text="${totalViews}">0</div>
                     <div class="stat-label">Vues totales</div>
@@ -479,7 +479,7 @@
                 </div>
                 <div th:each="action : ${activeActions}"
                      class="action-row">
-                    <div class="action-thumb-placeholder">💚</div>
+                    <div class="action-thumb-placeholder"></div>
                     <img th:if="${action.featuredImage != null}"
                          th:src="@{'/uploads/'+${action.featuredImage}}"
                          class="action-thumb" alt=""
@@ -539,7 +539,7 @@
                 <div th:each="action : ${archivedActions}"
                      class="action-row">
                     <div class="action-thumb-placeholder"
-                         style="background:#f5f5f5;">📦</div>
+                         style="background:#f5f5f5;"></div>
                     <div class="action-info">
                         <div class="action-title"
                              th:text="${action.title}"></div>
@@ -690,7 +690,7 @@
         <div class="col-lg-6" id="participations">
             <div class="section-card">
                 <div class="section-header">
-                    <h5>👥 Mes participations</h5>
+                    <h5> Mes participations</h5>
                     <span style="font-size:0.82rem;color:#888;"
                           th:text="${myParticipations.size()}
                                     + ' participation(s)'">
@@ -709,7 +709,7 @@
 
                 <div th:each="p : ${myParticipations}"
                      class="action-row">
-                    <div class="action-thumb-placeholder">💚</div>
+                    <div class="action-thumb-placeholder"></div>
                     <div class="action-info">
                         <div class="action-title"
                              th:text="${p.action.title}"></div>
