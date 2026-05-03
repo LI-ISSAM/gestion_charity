@@ -17,26 +17,28 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${app.mail.from:litimi.issam20@gmail.com}")
     private String fromEmail;
 
-    @Value("${app.base.url}")
-    private String baseUrl;
+ 
 
     // ── Envoi générique ────────────────────────────────
     @Async
-    private void sendHtml(String to, String subject, String html) {
+    private void sendHtml(String to, String subject,
+                           String html) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(
                     message, true, "UTF-8");
-            helper.setFrom(fromEmail);
+            helper.setFrom(fromEmail); // ✅ ton Gmail
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(html, true);
             mailSender.send(message);
+            System.out.println("✅ Email envoyé à : " + to);
         } catch (Exception e) {
-            System.err.println("Erreur email : " + e.getMessage());
+            System.err.println("❌ Erreur email : "
+                    + e.getMessage());
         }
     }
 
