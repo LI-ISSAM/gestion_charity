@@ -920,7 +920,7 @@
                         display:flex; align-items:center; justify-content:center;
                         position:relative; overflow:hidden;">
                 <img th:if="${org.logo != null}"
-                     th:src="@{'/uploads/' + ${org.logo}}"
+                     th:src="${org.logo}"
                      style="width:180px;height:120px;object-fit:cover;
                             border-radius:12px;border:3px solid rgba(255,255,255,0.3);"
                      alt="Logo"/>
