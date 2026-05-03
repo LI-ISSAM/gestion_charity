@@ -75,7 +75,7 @@
 
                         <div>
             <img th:if="${organisation.logo != null}"
-                 th:src="@{'/uploads/' + ${organisation.logo}}"
+                 th:src="${organisation.logo}"
                  style="width:80px; height:80px; object-fit:cover;
                         border-radius:12px; border:2px solid #d8f3dc;"
                  alt="Logo"/>

@@ -274,7 +274,7 @@
 
         <!-- ✅ Photo si existe -->
         <img th:if="${user.profilePicture != null}"
-             th:src="@{'/uploads/'+${user.profilePicture}}"
+             th:src="${user.profilePicture}"
              style="width:42px;height:42px;border-radius:50%;
                     object-fit:cover;flex-shrink:0;
                     border:2px solid rgba(255,255,255,0.3);"
@@ -477,7 +477,7 @@
                      class="action-row">
                     <div class="action-thumb-placeholder"></div>
                     <img th:if="${action.featuredImage != null}"
-                         th:src="@{'/uploads/'+${action.featuredImage}}"
+                         th:src="${action.featuredImage}"
                          class="action-thumb" alt=""
                          style="display:none;"
                          th:style="'display:block;'"/>

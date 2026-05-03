@@ -163,7 +163,7 @@
     <div class="d-flex align-items-center gap-2">
         <!-- ✅ Photo admin -->
         <img th:if="${user.profilePicture != null}"
-             th:src="@{'/uploads/'+${user.profilePicture}}"
+             th:src="${user.profilePicture}"
              style="width:36px;height:36px;border-radius:50%;
                     object-fit:cover;
                     border:2px solid #d8f3dc;"
@@ -313,7 +313,7 @@
         <div class="col-lg-5">
             <div class="section-card">
                 <div class="section-head">
-                    <h5>👥 Derniers inscrits</h5>
+                    <h5> Derniers inscrits</h5>
                     <a href="/admin/users"
                        style="font-size:0.8rem;color:#2d6a4f;
                               text-decoration:none;">

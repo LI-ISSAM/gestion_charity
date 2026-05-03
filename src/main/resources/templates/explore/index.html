@@ -340,7 +340,7 @@
                 <!-- Image -->
                 <div class="action-img-box">
                     <img th:if="${action.featuredImage != null}"
-                         th:src="@{'/uploads/'+${action.featuredImage}}"
+                         th:src="${action.featuredImage}"
                          alt="Image"/>
                     <div th:if="${action.featuredImage == null}"
                          class="action-img-placeholder"></div>

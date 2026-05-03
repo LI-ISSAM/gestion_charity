@@ -168,7 +168,7 @@
             <!-- Logo actuel affiché -->
             <div class="current-logo-box">
                 <img th:if="${currentLogo != null}"
-                     th:src="@{'/uploads/' + ${currentLogo}}"
+                     th:src="${currentLogo}"
                      alt="Logo actuel"/>
                 <div th:if="${currentLogo == null}" class="logo-placeholder">🏢</div>
                 <div>

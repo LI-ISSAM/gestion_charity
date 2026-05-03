@@ -130,7 +130,7 @@
             <div class="action-thumb-placeholder"
                  th:if="${action.featuredImage == null}">💚</div>
             <img th:if="${action.featuredImage != null}"
-                 th:src="@{'/uploads/'+${action.featuredImage}}"
+                 th:src="${action.featuredImage}"
                  class="action-thumb" alt=""/>
             <div>
                 <div style="font-weight:700;color:#1a1a2e;"

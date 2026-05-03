@@ -116,7 +116,7 @@
             <div style="width:100%; height:380px; border-radius:14px;
                         overflow:hidden; margin-bottom:1.5rem;">
                 <img th:if="${action.featuredImage != null}"
-                     th:src="@{'/uploads/' + ${action.featuredImage}}"
+                     th:src="${action.featuredImage}"
                      style="width:100%; height:100%;
                             object-fit:cover; object-position:center;"
                      alt="Image"/>
@@ -283,8 +283,7 @@
                 </h5>
                 <div class="org-card">
                     <img th:if="${action.organisation.logo != null}"
-                         th:src="@{'/uploads/'
-                                  + ${action.organisation.logo}}"
+                         th:src="${action.organisation.logo}"
                          class="org-logo" alt="Logo"/>
                     <div th:if="${action.organisation.logo == null}"
                          class="org-placeholder">🏢</div>

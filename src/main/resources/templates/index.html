@@ -715,7 +715,7 @@
 
         <!-- ✅ Photo si existe -->
         <img th:if="${user.profilePicture != null}"
-             th:src="@{'/uploads/'+${user.profilePicture}}"
+             th:src="${user.profilePicture}"
              style="width:24px;height:24px;border-radius:50%;
                     object-fit:cover;margin-right:0.3rem;"/>
 

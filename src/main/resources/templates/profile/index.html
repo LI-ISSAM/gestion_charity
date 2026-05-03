@@ -222,7 +222,7 @@
 
                 <!-- Photo existante -->
                 <img th:if="${user.profilePicture != null}"
-                     th:src="@{'/uploads/'+${user.profilePicture}}"
+                     th:src="${user.profilePicture}"
                      class="avatar-img" alt="Photo"
                      id="headerAvatar"/>
                 <!-- Initiale si pas de photo -->
