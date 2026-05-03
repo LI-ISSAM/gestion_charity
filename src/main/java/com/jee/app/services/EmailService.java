@@ -20,7 +20,8 @@ public class EmailService {
     @Value("${app.mail.from:litimi.issam20@gmail.com}")
     private String fromEmail;
 
- 
+    @Value("${app.base.url}")
+    private String baseUrl;
 
     // ── Envoi générique ────────────────────────────────
     @Async
