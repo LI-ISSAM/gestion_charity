@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:lang="${#locale.language}"
+      th:dir="${#locale.language == 'ar'} ? 'rtl' : 'ltr'">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard — CharityApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #f0f4f8; font-family: 'Segoe UI', sans-serif; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px; min-height: 100vh; background: #1b4332;
+            position: fixed; top: 0; left: 0; z-index: 100;
+            display: flex; flex-direction: column;
+            padding: 0; overflow-y: auto;
+        }
+        .sidebar-brand {
+            padding: 1.5rem; display: flex; align-items: center;
+            gap: 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .brand-icon { width: 40px; height: 40px; background: #2d6a4f;
+                      border-radius: 10px; display: flex;
+                      align-items: center; justify-content: center;
+                      font-size: 1.2rem; }
+        .brand-name { font-size: 1.2rem; font-weight: 700; color: white; }
+
+        .sidebar-user {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .user-avatar {
+            width: 42px; height: 42px; background: #2d6a4f;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 1.2rem;
+            color: white; font-weight: 700; flex-shrink: 0;
+        }
+        .user-name { font-weight: 600; color: white; font-size: 0.92rem; }
+        .user-role { font-size: 0.75rem; color: rgba(255,255,255,0.6); }
+
+        .sidebar-nav { padding: 1rem 0; flex: 1; }
+        .nav-section-title {
+            padding: 0.5rem 1.5rem; font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            color: rgba(255,255,255,0.4); margin-top: 0.5rem;
+        }
+        .nav-item-link {
+            display: flex; align-items: center; gap: 0.8rem;
+            padding: 0.7rem 1.5rem; color: rgba(255,255,255,0.75);
+            text-decoration: none; font-size: 0.9rem;
+            font-weight: 500; transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .nav-item-link:hover, .nav-item-link.active {
+            background: rgba(255,255,255,0.08);
+            color: white; border-left-color: #95d5b2;
+        }
+        .nav-item-link i { font-size: 1rem; width: 20px; }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-logout {
+            display: flex; align-items: center; gap: 0.6rem;
+            color: rgba(255,255,255,0.7); text-decoration: none;
+            font-size: 0.88rem; padding: 0.5rem 0;
+            transition: color 0.2s;
+        }
+        .btn-logout:hover { color: #ff6b6b; }
+
+        /* Main content */
+        .main-content {
+            margin-left: 260px; min-height: 100vh;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .page-header {
+            background: white; border-radius: 14px;
+            padding: 1.5rem 2rem; margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .page-header h1 { font-size: 1.5rem; font-weight: 700;
+                          color: #1a1a2e; margin: 0; }
+        .page-header p { color: #888; font-size: 0.88rem;
+                         margin: 0.2rem 0 0; }
+
+        /* Stats cards */
+        .stat-card {
+            background: white; border-radius: 14px;
+            padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: none; height: 100%;
+        }
+        .stat-icon {
+            width: 50px; height: 50px; border-radius: 12px;
+            display: flex; align-items: center;
+            justify-content: center; font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+        .stat-number {
+            font-size: 1.8rem; font-weight: 800; color: #1a1a2e;
+            line-height: 1;
+        }
+        .stat-label { font-size: 0.82rem; color: #888;
+                      margin-top: 0.3rem; }
+        .stat-trend { font-size: 0.78rem; margin-top: 0.5rem;
+                      font-weight: 600; }
+        .trend-up { color: #2d6a4f; }
+
+        /* Section card */
+        .section-card {
+            background: white; border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden; margin-bottom: 2rem;
+        }
+        .section-header {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .section-header h5 {
+            font-weight: 700; color: #1a1a2e; margin: 0;
+            font-size: 1rem;
+        }
+
+        /* Action row */
+        .action-row {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #f8f8f8;
+            display: flex; align-items: center;
+            gap: 1rem; transition: background 0.2s;
+        }
+        .action-row:hover { background: #fafffe; }
+        .action-row:last-child { border-bottom: none; }
+        .action-thumb {
+            width: 48px; height: 48px; border-radius: 10px;
+            object-fit: cover; flex-shrink: 0;
+        }
+        .action-thumb-placeholder {
+            width: 48px; height: 48px; background: #e8f5e9;
+            border-radius: 10px; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
+        }
+        .action-info { flex: 1; min-width: 0; }
+        .action-title {
+            font-weight: 600; color: #1a1a2e; font-size: 0.9rem;
+            white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .action-meta { font-size: 0.75rem; color: #888;
+                       margin-top: 0.2rem; }
+
+        /* Status badges */
+        .badge-active { background: #d1e7dd; color: #0f5132;
+                        padding: 0.25rem 0.6rem; border-radius: 50px;
+                        font-size: 0.72rem; font-weight: 700; }
+        .badge-draft { background: #e2e3e5; color: #41464b;
+                       padding: 0.25rem 0.6rem; border-radius: 50px;
+                       font-size: 0.72rem; font-weight: 700; }
+        .badge-archived { background: #fff3cd; color: #856404;
+                          padding: 0.25rem 0.6rem; border-radius: 50px;
+                          font-size: 0.72rem; font-weight: 700; }
+        .badge-completed { background: #cfe2ff; color: #084298;
+                           padding: 0.25rem 0.6rem; border-radius: 50px;
+                           font-size: 0.72rem; font-weight: 700; }
+
+        /* Progress */
+        .mini-progress {
+            height: 4px; background: #e8f5e9; border-radius: 2px;
+            overflow: hidden; margin-top: 0.4rem;
+        }
+        .mini-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #2d6a4f, #52b788);
+        }
+
+        /* Donation row */
+        .donation-row {
+            padding: 0.9rem 1.5rem;
+            border-bottom: 1px solid #f8f8f8;
+            display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .donation-row:last-child { border-bottom: none; }
+        .donation-amount {
+            font-weight: 700; color: #2d6a4f; font-size: 0.95rem;
+        }
+        .donation-status-success {
+            background: #d1e7dd; color: #0f5132;
+            padding: 0.2rem 0.6rem; border-radius: 50px;
+            font-size: 0.72rem; font-weight: 700;
+        }
+        .donation-status-pending {
+            background: #fff3cd; color: #856404;
+            padding: 0.2rem 0.6rem; border-radius: 50px;
+            font-size: 0.72rem; font-weight: 700;
+        }
+        .donation-status-failed {
+            background: #f8d7da; color: #842029;
+            padding: 0.2rem 0.6rem; border-radius: 50px;
+            font-size: 0.72rem; font-weight: 700;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center; padding: 2.5rem;
+            color: #aaa;
+        }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 0.8rem;
+                         display: block; }
+        .empty-state p { font-size: 0.88rem; margin: 0; }
+
+        /* Profile card */
+        .profile-card {
+            background: white; border-radius: 14px;
+            padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        .profile-avatar {
+            width: 64px; height: 64px; background: #2d6a4f;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 1.8rem;
+            color: white; font-weight: 700; margin-bottom: 1rem;
+        }
+        .profile-field { margin-bottom: 0.8rem; }
+        .profile-label { font-size: 0.75rem; color: #aaa;
+                         text-transform: uppercase; letter-spacing: 0.5px; }
+        .profile-value { font-weight: 600; color: #1a1a2e;
+                         font-size: 0.9rem; }
+
+        /* Tabs */
+        .custom-tabs { display: flex; gap: 0.5rem;
+                       padding: 1rem 1.5rem 0;
+                       border-bottom: 1px solid #f0f0f0; }
+        .tab-btn {
+            padding: 0.5rem 1rem; border: none; background: none;
+            font-size: 0.88rem; font-weight: 600; color: #888;
+            border-bottom: 2px solid transparent; cursor: pointer;
+            transition: all 0.2s; margin-bottom: -1px;
+        }
+        .tab-btn.active { color: #2d6a4f; border-bottom-color: #2d6a4f; }
+        .tab-btn:hover { color: #2d6a4f; }
+        .tab-content-panel { display: none; }
+        .tab-content-panel.active { display: block; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; min-height: auto; position: relative; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<!-- Avant </body> -->
+
+<body>
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════ -->
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <span class="brand-name">CharityApp</span>
+    </div>
+
+    <!-- User info -->
+  <!-- User info sidebar -->
+<div class="sidebar-user">
+    <div class="d-flex align-items-center gap-2">
+
+        <!-- ✅ Photo si existe -->
+        <img th:if="${user.profilePicture != null}"
+             th:src="@{'/uploads/'+${user.profilePicture}}"
+             style="width:42px;height:42px;border-radius:50%;
+                    object-fit:cover;flex-shrink:0;
+                    border:2px solid rgba(255,255,255,0.3);"
+             alt="Photo"/>
+
+        <!-- Initiale si pas de photo -->
+        <div th:if="${user.profilePicture == null}"
+             class="user-avatar"
+             th:text="${user.firstName.charAt(0)}">U</div>
+
+        <div>
+            <div class="user-name"
+                 th:text="${user.firstName + ' '
+                            + user.lastName}"></div>
+            <div class="user-role"
+                 th:text="${user.role}"></div>
+        </div>
+    </div>
+</div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+        <div class="nav-section-title">Principal</div>
+
+        <a href="/dashboard" class="nav-item-link active">
+            <i class="bi bi-grid"></i> Dashboard
+        </a>
+        <a href="/" class="nav-item-link">
+            <i class="bi bi-house"></i> Accueil
+        </a>
+        <a href="/explore" class="nav-item-link">
+            <i class="bi bi-search"></i> Explorer
+        </a>
+
+        <!-- Organisation -->
+        <div th:if="${user.role.name() == 'ORGANIZATION'
+                      or user.role.name() == 'USER'}">
+            <div class="nav-section-title">Organisation</div>
+
+            <a th:if="${organisation == null}"
+               href="/organisation/create"
+               class="nav-item-link">
+                <i class="bi bi-plus-circle"></i> Créer organisation
+            </a>
+            <a th:if="${organisation != null}"
+               href="/organisation/profile"
+               class="nav-item-link">
+                <i class="bi bi-building"></i> Mon organisation
+            </a>
+            <a th:if="${user.role.name() == 'ORGANIZATION'}"
+               href="/actions"
+               class="nav-item-link">
+                <i class="bi bi-heart"></i> Mes actions
+            </a>
+        </div>
+
+        <!-- Admin -->
+        <div th:if="${user.role.name() == 'ADMIN'}">
+            <div class="nav-section-title">Administration</div>
+            <a href="/admin/dashboard" class="nav-item-link">
+                <i class="bi bi-shield-check"></i> Admin Panel
+            </a>
+        </div>
+
+        <div class="nav-section-title">Compte</div>
+        <a href="#profile" class="nav-item-link"
+           onclick="showSection('profile')">
+            <i class="bi bi-person"></i> Mon profil
+        </a>
+        <a href="#donations" class="nav-item-link"
+           onclick="showSection('donations')">
+            <i class="bi bi-credit-card"></i> Mes dons
+        </a>
+        <a href="#participations" class="nav-item-link"
+           onclick="showSection('participations')">
+            <i class="bi bi-people"></i> Mes participations
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="/logout" class="btn-logout">
+            <i class="bi bi-box-arrow-right"></i> Déconnexion
+        </a>
+    </div>
+</div>
+
+<!-- ══ MAIN CONTENT ════════════════════════════════════ -->
+<div class="main-content">
+
+    <!-- Header -->
+    <div class="page-header">
+        <div>
+            <h1>Bonjour,
+                <span style="color:#2d6a4f;"
+                      th:text="${user.firstName}">User</span> 
+            </h1>
+            <p>Voici un résumé de votre activité sur CharityApp</p>
+        </div>
+        <a href="/explore" class="btn btn-success btn-sm">
+            <i class="bi bi-search me-1"></i>Explorer les actions
+        </a>
+    </div>
+
+    <!-- ══ Stats organisation si ORGANIZATION ══════════ -->
+    <div th:if="${organisation != null and
+                  organisation.status.name() == 'APPROVED'}">
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon"
+                         style="background:#d8f3dc;"></div>
+                    <div class="stat-number"
+                         th:text="${totalActiveActions}">0</div>
+                    <div class="stat-label">Actions actives</div>
+                    <div class="stat-trend trend-up">
+                        <i class="bi bi-arrow-up"></i>
+                        <span th:text="${totalActions}"></span> total
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon"
+                         style="background:#cfe2ff;">💰</div>
+                    <div class="stat-number"
+                         th:text="${totalCollected + ' €'}">0</div>
+                    <div class="stat-label">Total collecté</div>
+                    <div class="stat-trend trend-up">
+                        <i class="bi bi-arrow-up"></i>
+                        <span th:text="${totalDonations}"></span> dons
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon"
+                         style="background:#f0e6ff;">👥</div>
+                    <div class="stat-number"
+                         th:text="${totalParticipants}">0</div>
+                    <div class="stat-label">Participants</div>
+                    <div class="stat-trend trend-up">
+                        <i class="bi bi-people"></i> total inscrits
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon"
+                         style="background:#fff3cd;">👁️</div>
+                    <div class="stat-number"
+                         th:text="${totalViews}">0</div>
+                    <div class="stat-label">Vues totales</div>
+                    <div class="stat-trend trend-up">
+                        <i class="bi bi-eye"></i> impressions
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions avec tabs -->
+        <div class="section-card mb-4">
+            <div class="custom-tabs">
+                <button class="tab-btn active"
+                        onclick="switchTab('active-actions', this)">
+                    <i class="bi bi-heart me-1"></i>
+                    Actions actives
+                    <span style="background:#d1e7dd;color:#0f5132;
+                                 padding:0.1rem 0.5rem;border-radius:50px;
+                                 font-size:0.7rem;margin-left:0.3rem;"
+                          th:text="${totalActiveActions}"></span>
+                </button>
+                <button class="tab-btn"
+                        onclick="switchTab('archived-actions', this)">
+                    <i class="bi bi-archive me-1"></i>
+                    Actions archivées
+                    <span style="background:#fff3cd;color:#856404;
+                                 padding:0.1rem 0.5rem;border-radius:50px;
+                                 font-size:0.7rem;margin-left:0.3rem;"
+                          th:text="${totalArchivedActions}"></span>
+                </button>
+                <button class="tab-btn"
+                        onclick="switchTab('all-actions', this)">
+                    <i class="bi bi-list me-1"></i>
+                    Toutes
+                    <span style="background:#e9ecef;color:#495057;
+                                 padding:0.1rem 0.5rem;border-radius:50px;
+                                 font-size:0.7rem;margin-left:0.3rem;"
+                          th:text="${totalActions}"></span>
+                </button>
+            </div>
+
+            <!-- Tab Actions actives -->
+            <div id="active-actions" class="tab-content-panel active">
+                <div th:if="${activeActions.empty}" class="empty-state">
+                    <i class="bi bi-heart"></i>
+                    <p>Aucune action active</p>
+                    <a href="/actions/create"
+                       class="btn btn-success btn-sm mt-2">
+                        Créer une action
+                    </a>
+                </div>
+                <div th:each="action : ${activeActions}"
+                     class="action-row">
+                    <div class="action-thumb-placeholder">💚</div>
+                    <img th:if="${action.featuredImage != null}"
+                         th:src="@{'/uploads/'+${action.featuredImage}}"
+                         class="action-thumb" alt=""
+                         style="display:none;"
+                         th:style="'display:block;'"/>
+                    <div class="action-info">
+                        <div class="action-title"
+                             th:text="${action.title}"></div>
+                        <div class="action-meta">
+                            <i class="bi bi-eye me-1"></i>
+                            <span th:text="${action.viewCount}"></span>
+                            vues &nbsp;·&nbsp;
+                            <i class="bi bi-people me-1"></i>
+                            <span th:text="${action.participantCount}">
+                            </span> participants
+                        </div>
+                        <div class="mini-progress mt-1"
+                             th:if="${action.targetAmount != null}">
+                            <div class="mini-progress-bar"
+                                 th:style="'width:'+
+                                 ${action.currentAmount != null
+                                   ? action.progressPercentage : 0}+'%'">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end" style="flex-shrink:0;">
+                        <span class="badge-active">ACTIVE</span>
+                        <div style="font-size:0.78rem;color:#2d6a4f;
+                                    font-weight:600;margin-top:0.3rem;"
+                             th:if="${action.targetAmount != null}"
+                             th:text="${(action.currentAmount != null
+                                         ? action.currentAmount : 0)
+                                         + ' / ' + action.targetAmount
+                                         + ' €'}">
+                        </div>
+                    </div>
+                    <div style="flex-shrink:0;">
+                        <a th:href="@{/actions/{id}(id=${action.id})}"
+                           class="btn btn-outline-success btn-sm">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a th:href="@{/actions/edit/{id}(id=${action.id})}"
+                           class="btn btn-outline-secondary btn-sm ms-1">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Actions archivées -->
+            <div id="archived-actions" class="tab-content-panel">
+                <div th:if="${archivedActions.empty}"
+                     class="empty-state">
+                    <i class="bi bi-archive"></i>
+                    <p>Aucune action archivée</p>
+                </div>
+                <div th:each="action : ${archivedActions}"
+                     class="action-row">
+                    <div class="action-thumb-placeholder"
+                         style="background:#f5f5f5;">📦</div>
+                    <div class="action-info">
+                        <div class="action-title"
+                             th:text="${action.title}"></div>
+                        <div class="action-meta">
+                            <i class="bi bi-calendar me-1"></i>
+                            <span th:text="${#temporals.format(
+                                            action.createdAt,
+                                            'dd/MM/yyyy')}"></span>
+                            &nbsp;·&nbsp;
+                            <i class="bi bi-heart me-1"></i>
+                            <span th:text="${action.donationCount}">
+                            </span> dons
+                        </div>
+                    </div>
+                    <div class="text-end" style="flex-shrink:0;">
+                        <span class="badge-archived">ARCHIVÉE</span>
+                        <div style="font-size:0.78rem;color:#888;
+                                    font-weight:600;margin-top:0.3rem;"
+                             th:text="${(action.currentAmount != null
+                                         ? action.currentAmount : 0)
+                                         + ' € collectés'}">
+                        </div>
+                    </div>
+                    <div style="flex-shrink:0;">
+                        <a th:href="@{/actions/{id}(id=${action.id})}"
+                           class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Toutes les actions -->
+            <div id="all-actions" class="tab-content-panel">
+                <div th:if="${allActions.empty}" class="empty-state">
+                    <i class="bi bi-heart"></i>
+                    <p>Aucune action créée</p>
+                </div>
+                <div th:each="action : ${allActions}"
+                     class="action-row">
+                    <div class="action-thumb-placeholder"></div>
+                    <div class="action-info">
+                        <div class="action-title"
+                             th:text="${action.title}"></div>
+                        <div class="action-meta"
+                             th:text="${action.category + ' · '
+                                        + action.location}">
+                        </div>
+                    </div>
+                    <div style="flex-shrink:0;">
+                        <span th:switch="${action.status.name()}">
+                            <span th:case="'ACTIVE'"
+                                  class="badge-active">ACTIVE</span>
+                            <span th:case="'DRAFT'"
+                                  class="badge-draft">DRAFT</span>
+                            <span th:case="'ARCHIVED'"
+                                  class="badge-archived">ARCHIVÉE</span>
+                            <span th:case="'COMPLETED'"
+                                  class="badge-completed">TERMINÉE</span>
+                        </span>
+                    </div>
+                    <div style="flex-shrink:0;">
+                        <a th:href="@{/actions/{id}(id=${action.id})}"
+                           class="btn btn-outline-success btn-sm">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ Section infos org en attente ════════════════ -->
+    <div th:if="${organisation != null and
+                  organisation.status.name() == 'PENDING'}"
+         class="alert alert-warning d-flex align-items-center
+                gap-2 mb-4">
+        <i class="bi bi-hourglass-split fs-4"></i>
+        <div>
+            <strong>Organisation en attente de validation</strong><br>
+            <small>Un administrateur va examiner votre demande
+                   sous peu.</small>
+        </div>
+    </div>
+
+    <!-- ══ Mes dons & participations ═══════════════════ -->
+    <div class="row g-4">
+
+        <!-- Mes dons -->
+        <div class="col-lg-6" id="donations">
+            <div class="section-card">
+                <div class="section-header">
+                    <h5>💳 Mes dons</h5>
+                    <span style="font-size:0.82rem;color:#888;"
+                          th:text="${myDonations.size()} + ' don(s)'">
+                    </span>
+                </div>
+
+                <div th:if="${myDonations.empty}"
+                     class="empty-state">
+                    <i class="bi bi-credit-card"></i>
+                    <p>Vous n'avez pas encore fait de don</p>
+                    <a href="/explore"
+                       class="btn btn-success btn-sm mt-2">
+                        Explorer les actions
+                    </a>
+                </div>
+
+                <div th:each="donation : ${myDonations}"
+                     class="donation-row">
+                    <div>
+                        <div style="font-weight:600;color:#1a1a2e;
+                                    font-size:0.88rem;"
+                             th:text="${donation.action.title}">
+                        </div>
+                        <div style="font-size:0.75rem;color:#888;"
+                             th:text="${donation.donatedAt != null
+                                        ? #temporals.format(
+                                          donation.donatedAt,
+                                          'dd/MM/yyyy') : 'En attente'}">
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="donation-amount"
+                             th:text="${donation.amount + ' €'}">
+                        </div>
+                        <span th:if="${donation.status.name()
+                                       == 'COMPLETED'}"
+                              class="donation-status-success">
+                            Confirmé
+                        </span>
+                        <span th:if="${donation.status.name()
+                                       == 'PENDING'}"
+                              class="donation-status-pending">
+                            En attente
+                        </span>
+                        <span th:if="${donation.status.name()
+                                       == 'FAILED'}"
+                              class="donation-status-failed">
+                            Échoué
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mes participations -->
+        <div class="col-lg-6" id="participations">
+            <div class="section-card">
+                <div class="section-header">
+                    <h5>👥 Mes participations</h5>
+                    <span style="font-size:0.82rem;color:#888;"
+                          th:text="${myParticipations.size()}
+                                    + ' participation(s)'">
+                    </span>
+                </div>
+
+                <div th:if="${myParticipations.empty}"
+                     class="empty-state">
+                    <i class="bi bi-people"></i>
+                    <p>Vous ne participez à aucune action</p>
+                    <a href="/explore"
+                       class="btn btn-success btn-sm mt-2">
+                        Trouver une action
+                    </a>
+                </div>
+
+                <div th:each="p : ${myParticipations}"
+                     class="action-row">
+                    <div class="action-thumb-placeholder">💚</div>
+                    <div class="action-info">
+                        <div class="action-title"
+                             th:text="${p.action.title}"></div>
+                        <div class="action-meta">
+                            <i class="bi bi-building me-1"></i>
+                            <span th:text="${p.action.organisation.name}">
+                            </span>
+                            &nbsp;·&nbsp;
+                            <i class="bi bi-calendar me-1"></i>
+                            <span th:text="${#temporals.format(
+                                            p.registrationDate,
+                                            'dd/MM/yyyy')}">
+                            </span>
+                        </div>
+                    </div>
+                    <div style="flex-shrink:0;">
+                        <span th:if="${p.status.name() == 'REGISTERED'}"
+                              class="badge-active">Inscrit</span>
+                        <span th:if="${p.status.name() == 'CONFIRMED'}"
+                              style="background:#cfe2ff;color:#084298;
+                                     padding:0.25rem 0.6rem;
+                                     border-radius:50px;font-size:0.72rem;
+                                     font-weight:700;">
+                            Confirmé
+                        </span>
+                        <span th:if="${p.status.name() == 'CANCELLED'}"
+                              style="background:#f8d7da;color:#842029;
+                                     padding:0.25rem 0.6rem;
+                                     border-radius:50px;font-size:0.72rem;
+                                     font-weight:700;">
+                            Annulé
+                        </span>
+                    </div>
+                    <div style="flex-shrink:0;">
+                        <a th:href="@{/actions/{id}(id=${p.action.id})}"
+                           class="btn btn-outline-success btn-sm">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ Profil utilisateur ═══════════════════════════ -->
+    <div id="profile" class="mt-4">
+        <div class="profile-card">
+            <h5 class="fw-bold mb-3">
+             
+                Mon profil
+            </h5>
+            <div class="d-flex align-items-center gap-3 mb-3">
+
+                
+                <div class=""
+                     ></div>
+                <div>
+
+
+
+                    <div style="font-size:1.1rem;font-weight:700;
+                                color:#1a1a2e;"
+                         th:text="${user.firstName+' '+user.lastName}">
+                    </div>
+                    <div style="font-size:0.85rem;color:#888;"
+                         th:text="${user.email}"></div>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="profile-field">
+                        <div class="profile-label">Rôle</div>
+                        <div class="profile-value">
+                            <span class="badge bg-success"
+                                  th:text="${user.role}"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="profile-field">
+                        <div class="profile-label">Membre depuis</div>
+                        <div class="profile-value"
+                             th:text="${#temporals.format(
+                                       user.createdAt,
+                                       'dd/MM/yyyy')}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" th:if="${organisation != null}">
+                    <div class="profile-field">
+                        <div class="profile-label">Organisation</div>
+                        <div class="profile-value"
+                             th:text="${organisation.name}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function switchTab(tabId, btn) {
+    // Cache tous les panels
+    document.querySelectorAll('.tab-content-panel')
+            .forEach(p => p.classList.remove('active'));
+    // Désactive tous les boutons
+    document.querySelectorAll('.tab-btn')
+            .forEach(b => b.classList.remove('active'));
+    // Active le bon panel et bouton
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+}
+
+function showSection(sectionId) {
+    const el = document.getElementById(sectionId);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

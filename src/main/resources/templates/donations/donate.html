@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Faire un don</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; min-height: 100vh;
+               display: flex; flex-direction: column; background: #f0f4f8; }
+        .navbar { background: #1b4332; padding: 1rem 2rem; }
+        .navbar-brand { color: white; font-weight: 700; font-size: 1.2rem;
+                        text-decoration: none; display: flex;
+                        align-items: center; gap: 0.6rem; }
+        .brand-icon { width: 36px; height: 36px; background: #2d6a4f;
+                      border-radius: 8px; display: flex;
+                      align-items: center; justify-content: center; }
+        .main-layout { display: flex; flex: 1; }
+
+        .form-panel { width: 55%; padding: 3rem;
+                      background: white; overflow-y: auto; }
+        .form-header h2 { font-size: 1.8rem; font-weight: 700;
+                          color: #1a1a2e; margin-bottom: 0.4rem; }
+        .form-header p { color: #888; margin-bottom: 2rem; }
+
+        .action-info {
+            display: flex; align-items: center; gap: 1rem;
+            background: #f8fff9; border: 1.5px solid #d8f3dc;
+            border-radius: 12px; padding: 1rem; margin-bottom: 2rem;
+        }
+        .action-thumb { width: 60px; height: 60px; border-radius: 10px;
+                        object-fit: cover; flex-shrink: 0; }
+        .action-thumb-placeholder {
+            width: 60px; height: 60px; background: #2d6a4f;
+            border-radius: 10px; display: flex; flex-shrink: 0;
+            align-items: center; justify-content: center; font-size: 1.8rem;
+        }
+
+        .amounts-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 0.6rem; margin-bottom: 1.2rem;
+        }
+        .amount-btn {
+            border: 2px solid #e0e0e0; border-radius: 10px;
+            padding: 0.7rem; text-align: center; cursor: pointer;
+            font-weight: 700; font-size: 0.95rem; background: white;
+            transition: all 0.2s;
+        }
+        .amount-btn:hover, .amount-btn.selected {
+            border-color: #2d6a4f; background: #f0faf4; color: #2d6a4f;
+        }
+
+        .amount-wrap { position: relative; margin-bottom: 2rem; }
+        .amount-input {
+            width: 100%; padding: 0.8rem 1rem 0.8rem 3rem;
+            border: 1.5px solid #e8e8e8; border-radius: 10px;
+            font-size: 1.1rem; font-weight: 600; background: #fafafa;
+            transition: all 0.2s;
+        }
+        .amount-input:focus {
+            border-color: #2d6a4f; background: white;
+            box-shadow: 0 0 0 3px rgba(45,106,79,0.1); outline: none;
+        }
+        .currency-prefix {
+            position: absolute; left: 14px; top: 50%;
+            transform: translateY(-50%); font-weight: 700;
+            color: #2d6a4f; font-size: 1rem;
+        }
+
+        .btn-pay {
+            width: 100%; padding: 0.95rem; background: #2d6a4f;
+            color: white; border: none; border-radius: 12px;
+            font-size: 1.05rem; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; display: flex;
+            align-items: center; justify-content: center; gap: 0.6rem;
+        }
+        .btn-pay:hover {
+            background: #1b4332; transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(45,106,79,0.3);
+        }
+
+        .image-panel {
+            width: 45%; position: relative;
+            background: url('https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1200')
+                        center/cover no-repeat;
+        }
+        .image-panel::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(to bottom,
+                rgba(27,67,50,0.3), rgba(27,67,50,0.88));
+        }
+        .image-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 3rem; color: white; z-index: 1;
+        }
+        .image-overlay h3 { font-size: 1.8rem; font-weight: 700;
+                            margin-bottom: 1rem; }
+        .image-overlay p { opacity: 0.85; line-height: 1.7; }
+
+        @media (max-width: 768px) {
+            .image-panel { display: none; }
+            .form-panel { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+
+
+<nav class="navbar d-flex justify-content-between">
+    <a class="navbar-brand" href="/">
+        <div class="brand-icon">🤝</div> CharityApp
+    </a>
+    <a th:href="@{/actions/{id}(id=${action.id})}"
+       class="btn btn-outline-light btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Retour
+    </a>
+</nav>
+
+<div class="main-layout">
+    <div class="form-panel">
+        <div class="form-header">
+            <h2>💚 Faire un don</h2>
+            <p>Votre générosité fait une vraie différence !</p>
+        </div>
+
+        <!-- Action info -->
+        <div class="action-info">
+            <div class="action-thumb-placeholder"
+                 th:if="${action.featuredImage == null}">💚</div>
+            <img th:if="${action.featuredImage != null}"
+                 th:src="@{'/uploads/'+${action.featuredImage}}"
+                 class="action-thumb" alt=""/>
+            <div>
+                <div style="font-weight:700;color:#1a1a2e;"
+                     th:text="${action.title}"></div>
+                <div style="font-size:0.82rem;color:#888;"
+                     th:text="${action.organisation.name}"></div>
+                <div style="font-size:0.82rem;color:#2d6a4f;font-weight:600;"
+                     th:if="${action.targetAmount != null}"
+                     th:text="${(action.currentAmount != null ? action.currentAmount : 0)
+                                + ' / ' + action.targetAmount + ' EUR collectés'}">
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger mb-3"
+             th:text="${error}"></div>
+
+        <!-- Montants rapides -->
+        <div style="font-size:0.85rem;font-weight:600;
+                    color:#444;margin-bottom:0.6rem;">
+            Choisissez un montant
+        </div>
+        <div class="amounts-grid">
+            <div class="amount-btn" onclick="setAmount(10)">10 €</div>
+            <div class="amount-btn" onclick="setAmount(25)">25 €</div>
+            <div class="amount-btn" onclick="setAmount(50)">50 €</div>
+            <div class="amount-btn" onclick="setAmount(100)">100 €</div>
+        </div>
+
+        <!-- Montant personnalisé -->
+        <div class="amount-wrap">
+            <span class="currency-prefix">€</span>
+            <input type="number" id="amountDisplay"
+                   class="amount-input"
+                   placeholder="Autre montant..." min="1" step="1"/>
+        </div>
+
+        <!-- Formulaire Stripe -->
+        <form th:action="@{/donations/stripe/pay/{id}(id=${action.id})}"
+              method="post">
+            <input type="hidden" name="amount" id="amountHidden"/>
+            <button type="submit" class="btn-pay"
+                    onclick="return submitPay()">
+                <i class="bi bi-credit-card"></i>
+                Payer par carte via Stripe
+            </button>
+        </form>
+
+        <p style="text-align:center;color:#aaa;font-size:0.8rem;
+                  margin-top:1rem;">
+            <i class="bi bi-shield-check me-1"></i>
+            Paiement 100% sécurisé — Powered by Stripe
+        </p>
+    </div>
+
+    <div class="image-panel">
+        <div class="image-overlay">
+            <h3>Chaque don compte 💚</h3>
+            <p>Votre contribution aide à financer des actions
+               qui changent des vies.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function setAmount(val) {
+    document.getElementById('amountDisplay').value = val;
+    document.querySelectorAll('.amount-btn').forEach(b => {
+        b.classList.toggle('selected',
+                b.textContent.trim() === val + ' €');
+    });
+}
+
+function submitPay() {
+    const amount = document.getElementById('amountDisplay').value;
+    if (!amount || parseFloat(amount) < 1) {
+        alert('Veuillez entrer un montant minimum de 1 €');
+        return false;
+    }
+    document.getElementById('amountHidden').value = amount;
+    return true;
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

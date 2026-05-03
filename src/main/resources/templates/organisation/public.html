@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${organisation.name}">Organisation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #f0f4f8; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: #1b4332; }
+
+        /* Hero organisation */
+        .org-hero {
+            background: linear-gradient(135deg, #1b4332, #2d6a4f);
+            color: white; padding: 3rem 0;
+        }
+        .org-logo-hero {
+            width: 100px; height: 100px; object-fit: cover;
+            border-radius: 16px; border: 4px solid rgba(255,255,255,0.3);
+        }
+        .org-logo-placeholder {
+            width: 100px; height: 100px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 16px; border: 4px solid rgba(255,255,255,0.2);
+            display: flex; align-items: center;
+            justify-content: center; font-size: 3rem;
+        }
+        .verified-badge {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: #95d5b2; color: #1b4332;
+            padding: 0.3rem 0.9rem; border-radius: 50px;
+            font-size: 0.82rem; font-weight: 700;
+        }
+
+        /* Cards actions */
+        .action-card {
+            background: white; border-radius: 14px;
+            border: none; box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+            overflow: hidden; transition: all 0.3s;
+            text-decoration: none; color: inherit;
+            display: block; height: 100%;
+            margin: auto;
+        }
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            color: inherit;
+        }
+        .action-img {
+            width:100%; 
+            height:160px;
+            border-radius:10px;
+            object-fit:contain;
+        }
+        .action-img-placeholder {
+            width: 100%; height: 180px;
+            background: linear-gradient(135deg, #1b4332, #52b788);
+            display: flex; align-items: center;
+            justify-content: center; font-size: 3.5rem;
+        }
+        .category-badge {
+            background: #d8f3dc; color: #2d6a4f;
+            padding: 0.2rem 0.7rem; border-radius: 50px;
+            font-size: 0.75rem; font-weight: 700;
+        }
+        .progress-track {
+            height: 6px; background: #e8f5e9;
+            border-radius: 3px; overflow: hidden;
+        }
+        .progress-bar-custom {
+            height: 100%;
+            background: linear-gradient(90deg, #2d6a4f, #52b788);
+            border-radius: 3px;
+        }
+
+        /* Info boxes */
+        .info-box {
+            background: white; border-radius: 12px;
+            padding: 1.2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .info-label {
+            font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 0.5px; color: #999; margin-bottom: 0.3rem;
+        }
+        .info-value {
+            font-weight: 600; color: #1a1a2e; font-size: 0.92rem;
+        }
+    </style>
+</head>
+<body>
+
+
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark px-4 py-3 d-flex justify-content-between">
+    <a class="navbar-brand fw-bold" href="/">🤝 CharityApp</a>
+    <div class="d-flex gap-2">
+        <a href="/" class="btn btn-outline-light btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Retour
+        </a>
+        <a th:if="${user != null}" href="/dashboard"
+           class="btn btn-light btn-sm fw-semibold">
+            <i class="bi bi-grid me-1"></i>Dashboard
+        </a>
+        <a th:if="${user == null}" href="/login"
+           class="btn btn-light btn-sm fw-semibold">
+            Se connecter
+        </a>
+    </div>
+</nav>
+
+<!-- Hero -->
+<div class="org-hero">
+    <div class="container">
+        <div class="d-flex align-items-center gap-4">
+            <img th:if="${organisation.logo != null}"
+                 th:src="@{'/uploads/' + ${organisation.logo}}"
+                 class="org-logo-hero" alt="Logo"/>
+            <div th:if="${organisation.logo == null}"
+                 class="org-logo-placeholder">🏢</div>
+
+            <div>
+                <div class="verified-badge mb-2">
+                    <i class="bi bi-patch-check-fill"></i> Organisation vérifiée
+                </div>
+                <h1 class="fw-bold mb-1" th:text="${organisation.name}"></h1>
+                <p class="opacity-75 mb-0" th:text="${organisation.description}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4">
+
+        <!-- ══ Actions ═════════════════════════════════ -->
+        <div class="col-lg-8">
+
+            <h4 class="fw-bold mb-4">
+                <i class="bi bi-heart" style="color:#2d6a4f;"></i>
+                Actions en cours
+                <span class="badge bg-success ms-2"
+                      th:text="${actions.size()}">0</span>
+            </h4>
+
+            <!-- Aucune action -->
+            <div th:if="${actions.empty}"
+                 class="text-center py-5 bg-white rounded-3">
+                <div style="font-size:3rem;">💚</div>
+                <h5 class="mt-3 text-muted">
+                    Aucune action active pour le moment
+                </h5>
+                <p class="text-muted small">
+                    Revenez bientôt pour découvrir leurs initiatives !
+                </p>
+            </div>
+
+            <!-- Liste actions -->
+            <div th:if="${!actions.empty}" class="row g-4">
+                <div class="col-md-6" th:each="action : ${actions}">
+                    <a th:href="@{/actions/{id}(id=${action.id})}"
+                       class="action-card ">
+
+                    <!-- Image -->
+                <div style="padding:3rem 1rem 0;margin:auto;">
+                    <img th:if="${action.featuredImage != null}"
+                         th:src="@{'/uploads/' + ${action.featuredImage}}"
+                         class="action-img " alt="Image"/>
+                    <div th:if="${action.featuredImage == null}"
+                         class="action-img-placeholder">💚
+                    </div>
+                </div>
+                             
+                             
+                        <div th:if="${action.featuredImage == null}"
+                             class="action-img-placeholder">💚</div>
+
+                        <div style="padding:1.2rem;">
+
+                            <!-- Catégorie -->
+                            <span class="category-badge mb-2 d-inline-block"
+                                  th:text="${action.category}"></span>
+
+                            <!-- Titre -->
+                            <h5 style="font-weight:700;font-size:0.98rem;
+                                       color:#1a1a2e;margin-bottom:0.4rem;"
+                                th:text="${action.title}"></h5>
+
+                            <!-- Description courte -->
+                            <p style="color:#888;font-size:0.84rem;
+                                      line-height:1.5;margin-bottom:1rem;"
+                               th:text="${action.shortDescription}"></p>
+
+                            <!-- Progression -->
+                            <div th:if="${action.targetAmount != null}"
+                                 class="mb-3">
+                                <div class="d-flex justify-content-between mb-1"
+                                     style="font-size:0.78rem;">
+                                    <span class="text-success fw-semibold"
+                                          th:text="${(action.currentAmount != null
+                                                     ? action.currentAmount : 0)
+                                                     + ' ' + action.currency}">
+                                    </span>
+                                    <span class="text-muted"
+                                          th:text="'/ ' + ${action.targetAmount}
+                                                   + ' ' + ${action.currency}">
+                                    </span>
+                                </div>
+                                <div class="progress-track">
+                                    <div class="progress-bar-custom"
+                                         th:style="'width:' +
+                                         ${action.currentAmount != null
+                                           ? action.progressPercentage : 0} + '%'">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stats -->
+                            <div class="d-flex gap-3"
+                                 style="font-size:0.78rem;color:#888;">
+                                <span>
+                                    <i class="bi bi-eye me-1"></i>
+                                    <span th:text="${action.viewCount}"></span>
+                                </span>
+                                <span>
+                                    <i class="bi bi-people me-1"></i>
+                                    <span th:text="${action.participantCount}"></span>
+                                </span>
+                                <span th:if="${action.location}">
+                                    <i class="bi bi-geo-alt me-1"></i>
+                                    <span th:text="${action.location}"></span>
+                                </span>
+                            </div>
+
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ Infos organisation ══════════════════════ -->
+        <div class="col-lg-4">
+
+            <div class="info-box mb-3">
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-building me-2" style="color:#2d6a4f;"></i>
+                    À propos
+                </h5>
+
+                <div th:if="${organisation.mission}" class="mb-3">
+                    <div class="info-label">Mission</div>
+                    <div class="info-value"
+                         th:text="${organisation.mission}"></div>
+                </div>
+
+                <div th:if="${organisation.legalAddress}" class="mb-3">
+                    <div class="info-label">Adresse</div>
+                    <div class="info-value"
+                         th:text="${organisation.legalAddress}"></div>
+                </div>
+
+                <div th:if="${organisation.phone}" class="mb-3">
+                    <div class="info-label">Téléphone</div>
+                    <div class="info-value"
+                         th:text="${organisation.phone}"></div>
+                </div>
+
+                <div th:if="${organisation.website}" class="mb-3">
+                    <div class="info-label">Site web</div>
+                    <a th:href="${organisation.website}"
+                       th:text="${organisation.website}"
+                       target="_blank"
+                       style="color:#2d6a4f;font-weight:600;
+                              font-size:0.88rem;word-break:break-all;">
+                    </a>
+                </div>
+
+                <div th:if="${organisation.taxId}">
+                    <div class="info-label">N° Fiscal</div>
+                    <div class="info-value"
+                         th:text="${organisation.taxId}"></div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="info-box">
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-bar-chart me-2" style="color:#2d6a4f;"></i>
+                    Statistiques
+                </h5>
+                <div class="d-flex justify-content-around text-center">
+                    <div>
+                        <div style="font-size:1.5rem;font-weight:700;
+                                    color:#2d6a4f;"
+                             th:text="${actions.size()}">0</div>
+                        <div style="font-size:0.78rem;color:#888;">
+                            Actions actives
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:1.5rem;font-weight:700;
+                                    color:#2d6a4f;">
+                            ✓
+                        </div>
+                        <div style="font-size:0.78rem;color:#888;">
+                            Vérifiée
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${action.title}">Détail action</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #f0f4f8; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: #1b4332; }
+        .card { border: none; border-radius: 14px;
+                box-shadow: 0 2px 15px rgba(0,0,0,0.06); }
+
+        .category-badge {
+            background: #d8f3dc; color: #2d6a4f;
+            padding: 0.3rem 0.9rem; border-radius: 50px;
+            font-size: 0.82rem; font-weight: 700;
+        }
+        .status-badge {
+            padding: 0.3rem 0.9rem; border-radius: 50px;
+            font-size: 0.82rem; font-weight: 700;
+        }
+        .status-DRAFT     { background:#e2e3e5; color:#41464b; }
+        .status-ACTIVE    { background:#d1e7dd; color:#0f5132; }
+        .status-COMPLETED { background:#cfe2ff; color:#084298; }
+        .status-ARCHIVED  { background:#fff3cd; color:#856404; }
+        .status-CANCELLED { background:#f8d7da; color:#842029; }
+
+        .progress-track {
+            height: 10px; background: #e8f5e9;
+            border-radius: 5px; overflow: hidden;
+        }
+        .progress-bar-custom {
+            height: 100%;
+            background: linear-gradient(90deg, #2d6a4f, #52b788);
+            border-radius: 5px;
+        }
+
+        .info-item {
+            display: flex; align-items: center; gap: 0.6rem;
+            padding: 0.8rem 0; border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+        }
+        .info-item:last-child { border-bottom: none; }
+        .info-item i { color: #2d6a4f; font-size: 1rem; width: 20px; }
+        .info-label { color: #888; font-size: 0.78rem; }
+        .info-value { font-weight: 600; color: #1a1a2e; }
+
+        .org-card {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem; background: #f8fff9;
+            border-radius: 10px; border: 1px solid #d8f3dc;
+        }
+        .org-logo {
+            width: 50px; height: 50px; object-fit: cover;
+            border-radius: 8px; border: 2px solid #d8f3dc;
+        }
+        .org-placeholder {
+            width: 50px; height: 50px; background: #e8f5e9;
+            border-radius: 8px; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-box {
+            text-align: center; padding: 1rem;
+            background: #f8fff9; border-radius: 10px;
+            border: 1px solid #d8f3dc;
+        }
+        .stat-box .num {
+            font-size: 1.5rem; font-weight: 700; color: #2d6a4f;
+        }
+        .stat-box .lbl { font-size: 0.78rem; color: #888; }
+
+        /* Bouton modifier — visible seulement au manager */
+        .btn-edit-action {
+            background: white; color: #2d6a4f;
+            border: 1.5px solid #2d6a4f; border-radius: 8px;
+            padding: 0.4rem 1rem; font-size: 0.85rem;
+            font-weight: 600; text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-edit-action:hover {
+            background: #f0faf4; color: #1b4332;
+        }
+    </style>
+</head>
+<body>
+
+
+
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark px-4 py-3 d-flex justify-content-between">
+    <a class="navbar-brand fw-bold" href="/">🤝 CharityApp</a>
+    <div class="d-flex gap-2">
+        <a href="javascript:history.back()"
+           class="btn btn-outline-light btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Retour
+        </a>
+        <a th:if="${user != null}"
+           th:href="@{/actions/edit/{id}(id=${action.id})}"
+           class="btn btn-light btn-sm">
+            <i class="bi bi-pencil me-1"></i>Modifier
+        </a>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="row g-4">
+
+        <!-- ══ Colonne principale ══════════════════════ -->
+        <div class="col-lg-8">
+
+            <!-- Image -->
+            <div style="width:100%; height:380px; border-radius:14px;
+                        overflow:hidden; margin-bottom:1.5rem;">
+                <img th:if="${action.featuredImage != null}"
+                     th:src="@{'/uploads/' + ${action.featuredImage}}"
+                     style="width:100%; height:100%;
+                            object-fit:cover; object-position:center;"
+                     alt="Image"/>
+                <div th:if="${action.featuredImage == null}"
+                     style="width:100%; height:100%;
+                            background:linear-gradient(135deg,#1b4332,#2d6a4f);
+                            display:flex; align-items:center;
+                            justify-content:center; font-size:5rem;">💚
+                </div>
+            </div>
+
+            <!-- Badges -->
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                <span class="category-badge"
+                      th:text="${action.category}"></span>
+                <span class="status-badge"
+                      th:classappend="'status-' + ${action.status}"
+                      th:text="${action.status}"></span>
+            </div>
+
+            <!-- Titre -->
+            <h1 class="fw-bold mb-2" style="font-size:1.8rem;"
+                th:text="${action.title}"></h1>
+            <p class="text-muted mb-4"
+               th:text="${action.shortDescription}"></p>
+
+            <!-- Progression -->
+            <div th:if="${action.targetAmount != null}"
+                 class="card p-4 mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <div>
+                        <div class="fw-bold"
+                             style="font-size:1.4rem; color:#2d6a4f;"
+                             th:text="${(action.currentAmount != null
+                                        ? action.currentAmount : 0)
+                                        + ' ' + action.currency}">
+                        </div>
+                        <div class="text-muted small">collectés</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold"
+                             style="font-size:1.4rem; color:#1a1a2e;"
+                             th:text="${action.targetAmount
+                                        + ' ' + action.currency}">
+                        </div>
+                        <div class="text-muted small">objectif</div>
+                    </div>
+                </div>
+                <div class="progress-track mb-2">
+                    <div class="progress-bar-custom"
+                         th:style="'width:' +
+                         ${action.currentAmount != null
+                           ? action.progressPercentage : 0} + '%'">
+                    </div>
+                </div>
+                <div class="text-end text-muted small"
+                     th:text="${(action.currentAmount != null
+                                 ? action.progressPercentage : 0)}
+                                 + '% atteint'">
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="row g-3 mb-4">
+                <div class="col-4">
+                    <div class="stat-box">
+                        <div class="num"
+                             th:text="${action.donationCount}">0</div>
+                        <div class="lbl">Dons</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="stat-box">
+                        <div class="num"
+                             th:text="${action.participantCount}">0</div>
+                        <div class="lbl">Participants</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="stat-box">
+                        <div class="num"
+                             th:text="${action.viewCount}">0</div>
+                        <div class="lbl">Vues</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-file-text me-2"
+                       style="color:#2d6a4f;"></i>
+                    Description
+                </h5>
+                <p style="line-height:1.8; color:#555;"
+                   th:text="${action.description}"></p>
+            </div>
+
+        </div>
+
+        <!-- ══ Colonne droite ══════════════════════════ -->
+        <div class="col-lg-4">
+
+            <!-- Infos -->
+            <div class="card p-4 mb-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-info-circle me-2"
+                       style="color:#2d6a4f;"></i>
+                    Informations
+                </h5>
+
+                <div th:if="${action.location}" class="info-item">
+                    <i class="bi bi-geo-alt"></i>
+                    <div>
+                        <div class="info-label">Lieu</div>
+                        <div class="info-value"
+                             th:text="${action.location}"></div>
+                    </div>
+                </div>
+
+                <div th:if="${action.startDate}" class="info-item">
+                    <i class="bi bi-calendar-check"></i>
+                    <div>
+                        <div class="info-label">Date de début</div>
+                        <div class="info-value"
+                             th:text="${#temporals.format(
+                                       action.startDate,
+                                       'dd/MM/yyyy HH:mm')}">
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${action.endDate}" class="info-item">
+                    <i class="bi bi-calendar-x"></i>
+                    <div>
+                        <div class="info-label">Date de fin</div>
+                        <div class="info-value"
+                             th:text="${#temporals.format(
+                                       action.endDate,
+                                       'dd/MM/yyyy HH:mm')}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <i class="bi bi-clock"></i>
+                    <div>
+                        <div class="info-label">Créée le</div>
+                        <div class="info-value"
+                             th:text="${#temporals.format(
+                                       action.createdAt,
+                                       'dd/MM/yyyy')}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Organisation -->
+            <div class="card p-4 mb-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-building me-2"
+                       style="color:#2d6a4f;"></i>
+                    Organisation
+                </h5>
+                <div class="org-card">
+                    <img th:if="${action.organisation.logo != null}"
+                         th:src="@{'/uploads/'
+                                  + ${action.organisation.logo}}"
+                         class="org-logo" alt="Logo"/>
+                    <div th:if="${action.organisation.logo == null}"
+                         class="org-placeholder">🏢</div>
+                    <div>
+                        <div class="fw-bold"
+                             th:text="${action.organisation.name}">
+                        </div>
+                        <div class="text-muted small"
+                             th:text="${action.organisation.legalAddress}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ✅ Section Participer/Don -->
+            <div class="card p-4"
+                 th:if="${action.status.name() == 'ACTIVE'}">
+
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-heart me-2"
+                       style="color:#2d6a4f;"></i>
+                    Soutenir cette action
+                </h5>
+
+                <!-- Non connecté -->
+                <div th:if="${user == null}">
+                    <p class="text-muted small mb-3">
+                        Connectez-vous pour participer
+                        ou faire un don.
+                    </p>
+                    <a href="/login"
+                       class="btn btn-success w-100">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Se connecter
+                    </a>
+                </div>
+
+                <!-- Connecté -->
+                <div th:if="${user != null}">
+
+                    <!-- Bouton Don -->
+                    <a th:href="@{/donations/donate/{id}
+                                 (id=${action.id})}"
+                       class="btn btn-success w-100 mb-3">
+                        <i class="bi bi-heart-fill me-2"></i>
+                        Faire un don
+                    </a>
+
+                    <hr class="my-3"/>
+
+                    <!-- Pas encore inscrit -->
+                    <div th:if="${!isParticipating}">
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-people me-1"></i>
+                            <span th:text="${action.participantCount}">
+                            </span> participant(s) inscrits
+                        </p>
+                        <form th:action="@{/participations/join/{id}
+                                         (id=${action.id})}"
+                              method="post">
+                            <button type="submit"
+                                    class="btn btn-outline-success w-100">
+                                <i class="bi bi-person-plus me-2"></i>
+                                Participer gratuitement
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Déjà inscrit -->
+                    <div th:if="${isParticipating}">
+
+                        <!-- Statut REGISTERED -->
+                        <div th:if="${participationStatus != null
+                                     and participationStatus.name()
+                                     == 'REGISTERED'}"
+                             class="alert alert-success mb-3">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <strong>Vous êtes inscrit !</strong><br>
+                            <small>Votre participation est enregistrée.</small>
+                        </div>
+
+                        <!-- Statut CONFIRMED -->
+                        <div th:if="${participationStatus != null
+                                     and participationStatus.name()
+                                     == 'CONFIRMED'}"
+                             class="alert alert-primary mb-3">
+                            <i class="bi bi-patch-check-fill me-2"></i>
+                            <strong>Participation confirmée !</strong><br>
+                            <small>L'organisation a confirmé votre présence.</small>
+                        </div>
+
+                        <!-- Bouton annuler -->
+                        <form th:action="@{/participations/cancel/{id}
+                                         (id=${action.id})}"
+                              method="post"
+                              onsubmit="return confirm(
+                                  'Annuler votre participation ?')">
+                            <button type="submit"
+                                    class="btn btn-outline-danger
+                                           w-100 btn-sm">
+                                <i class="bi bi-person-dash me-2"></i>
+                                Annuler ma participation
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Messages flash -->
+                    <div th:if="${param.joined}"
+                         class="alert alert-success mt-3 mb-0 small">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Vous participez maintenant à cette action !
+                    </div>
+                    <div th:if="${param.alreadyJoined}"
+                         class="alert alert-warning mt-3 mb-0 small">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Vous participez déjà à cette action.
+                    </div>
+                    <div th:if="${param.cancelled}"
+                         class="alert alert-info mt-3 mb-0 small">
+                        <i class="bi bi-x-circle me-2"></i>
+                        Participation annulée.
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

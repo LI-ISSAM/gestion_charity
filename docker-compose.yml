@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+
+  # ── PostgreSQL ─────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: charity_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: charity_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - charity_network
+
+  # ── Application Spring Boot ────────────────────────────
+  app:
+    build: .
+    container_name: charity_app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/charity_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      STRIPE_API_KEY: ${STRIPE_API_KEY}
+      STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY}
+      APP_BASE_URL: http://localhost:8080
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      - postgres
+    networks:
+      - charity_network
+
+volumes:
+  postgres_data:
+  uploads_data:
+
+networks:
+  charity_network:
+    driver: bridge

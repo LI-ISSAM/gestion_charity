@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<!-- ✅ Direction automatique selon la langue -->
+<html xmlns:th="http://www.thymeleaf.org"
+      th:lang="${#locale.language}"
+      th:dir="${#locale.language == 'ar'} ? 'rtl' : 'ltr'">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CharityApp - Ensemble, faisons la différence</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+       
+       /* ✅ Support RTL arabe */
+[dir="rtl"] {
+    text-align: right;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+}
+[dir="rtl"] .navbar-nav { margin-right: auto !important; margin-left: 0 !important; }
+[dir="rtl"] .me-1 { margin-left: 0.25rem !important; margin-right: 0 !important; }
+[dir="rtl"] .me-2 { margin-left: 0.5rem !important; margin-right: 0 !important; }
+[dir="rtl"] .ms-2 { margin-right: 0.5rem !important; margin-left: 0 !important; }
+[dir="rtl"] .bi { transform: scaleX(-1); } /* Retourne les icônes directionnelles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            color: #1a1a2e;
+        }
+
+        /* ══ NAVBAR ══════════════════════════════════════ */
+        .navbar {
+            padding: 1.2rem 2rem;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        /* ✅ Pagination */
+.pagination-btn {
+    width: 40px; height: 40px; border-radius: 10px;
+    border: 1.5px solid #e0e0e0; background: white;
+    display: flex; align-items: center; justify-content: center;
+    color: #555; text-decoration: none; transition: all 0.2s;
+    cursor: pointer;
+}
+.pagination-btn:hover:not(.disabled) {
+    border-color: #2d6a4f; color: #2d6a4f; background: #f0faf4;
+}
+.pagination-btn.disabled {
+    opacity: 0.35; pointer-events: none; cursor: default;
+}
+.pagination-num {
+    width: 40px; height: 40px; border-radius: 10px;
+    border: 1.5px solid #e0e0e0; background: white;
+    display: flex; align-items: center; justify-content: center;
+    color: #555; text-decoration: none; font-size: 0.88rem;
+    font-weight: 600; transition: all 0.2s;
+}
+.pagination-num:hover {
+    border-color: #2d6a4f; color: #2d6a4f; background: #f0faf4;
+}
+.pagination-num.active {
+    background: #2d6a4f; border-color: #2d6a4f; color: white;
+}
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            background: #2d6a4f;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .brand-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1b4332;
+        }
+
+        .nav-link {
+            color: #444 !important;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.4rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            color: #2d6a4f !important;
+            background: #f0faf4;
+        }
+
+        .btn-nav-login {
+            border: 1.5px solid #2d6a4f;
+            color: #2d6a4f;
+            padding: 0.45rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-nav-login:hover {
+            background: #f0faf4;
+            color: #1b4332;
+        }
+
+        .btn-nav-register {
+            background: #2d6a4f;
+            color: white !important;
+            padding: 0.45rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-nav-register:hover {
+            background: #1b4332;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(45,106,79,0.3);
+        }
+
+        /* ══ HERO ════════════════════════════════════════ */
+        .hero {
+            min-height: 92vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1600')
+                        center/cover no-repeat;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(27, 67, 50, 0.88) 0%,
+                rgba(45, 106, 79, 0.6) 60%,
+                rgba(0,0,0,0.2) 100%
+            );
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            color: white;
+            max-width: 650px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            color: #95d5b2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 1.2rem;
+        }
+
+        .hero h1 span {
+            color: #95d5b2;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            opacity: 0.88;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            max-width: 520px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero-primary {
+            background: #95d5b2;
+            color: #1b4332;
+            padding: 0.85rem 2rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-hero-primary:hover {
+            background: #74c69d;
+            color: #1b4332;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-hero-secondary {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            padding: 0.85rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            border: 1.5px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(5px);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-hero-secondary:hover {
+            background: rgba(255,255,255,0.25);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Stats dans le hero */
+        .hero-stats {
+            display: flex;
+            gap: 2.5rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .hero-stat .number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #95d5b2;
+        }
+
+        .hero-stat .label {
+            font-size: 0.82rem;
+            opacity: 0.75;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ══ SECTION : Comment ça marche ════════════════ */
+        .section {
+            padding: 6rem 0;
+        }
+
+        .section-badge {
+            display: inline-block;
+            background: #d8f3dc;
+            color: #2d6a4f;
+            padding: 0.35rem 1rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.8rem;
+        }
+
+        .section-subtitle {
+            color: #777;
+            font-size: 1rem;
+            max-width: 500px;
+            line-height: 1.7;
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.06);
+            border: 1px solid #f0f0f0;
+            height: 100%;
+            transition: all 0.3s;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(45,106,79,0.12);
+            border-color: #95d5b2;
+        }
+
+        .step-number {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #2d6a4f, #52b788);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .step-card h4 {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.6rem;
+            color: #1a1a2e;
+        }
+
+        .step-card p {
+            color: #777;
+            font-size: 0.92rem;
+            line-height: 1.7;
+        }
+
+        /* ══ SECTION : Actions en cours ═════════════════ */
+        .actions-section {
+            padding: 6rem 0;
+            background: #f8fffe;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+            border: 1px solid #f0f0f0;
+            transition: all 0.3s;
+            height: 100%;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+        }
+
+        .action-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .action-body {
+            padding: 1.5rem;
+        }
+
+        .action-category {
+            display: inline-block;
+            background: #d8f3dc;
+            color: #2d6a4f;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        .action-body h5 {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .action-body p {
+            color: #888;
+            font-size: 0.87rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .progress-custom {
+            height: 6px;
+            border-radius: 3px;
+            background: #e8f5e9;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar-custom {
+            height: 100%;
+            background: linear-gradient(90deg, #2d6a4f, #52b788);
+            border-radius: 3px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            color: #999;
+        }
+
+        .progress-info span:first-child {
+            color: #2d6a4f;
+            font-weight: 600;
+        }
+
+        /* ══ SECTION : Pourquoi nous ════════════════════ */
+        .why-section {
+            padding: 6rem 0;
+            background: linear-gradient(135deg, #1b4332, #2d6a4f);
+            color: white;
+        }
+
+        .why-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 2rem;
+            height: 100%;
+            transition: all 0.3s;
+        }
+
+        .why-card:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-3px);
+        }
+
+        .why-icon {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .why-card h5 {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .why-card p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        /* ══ CTA SECTION ═════════════════════════════════ */
+        .cta-section {
+            padding: 6rem 0;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            color: #777;
+            font-size: 1.05rem;
+            max-width: 500px;
+            margin: 0 auto 2rem;
+            line-height: 1.7;
+        }
+
+        .btn-cta {
+            background: #2d6a4f;
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .btn-cta:hover {
+            background: #1b4332;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(45,106,79,0.35);
+        }
+
+        /* ══ FOOTER ══════════════════════════════════════ */
+        footer {
+            background: #1a1a2e;
+            color: rgba(255,255,255,0.7);
+            padding: 3rem 0 1.5rem;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-brand-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        footer p {
+            font-size: 0.88rem;
+            line-height: 1.7;
+            max-width: 280px;
+        }
+
+        .footer-title {
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            font-size: 0.88rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: #95d5b2; }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+            text-align: center;
+            font-size: 0.83rem;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════════════════ -->
+
+
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+<div class="d-flex align-items-center gap-2 ms-2">
+
+    <!-- Français -->
+    <a th:href="@{/(lang=fr)}"
+       style="text-decoration:none;font-size:0.85rem;
+              font-weight:600;padding:0.3rem 0.7rem;
+              border-radius:6px;transition:all 0.2s;"
+       th:style="${#locale.language == 'fr'}
+                 ? 'background:#2d6a4f;color:white;
+                    padding:0.3rem 0.7rem;border-radius:6px;'
+                 : 'color:#555;padding:0.3rem 0.7rem;
+                    border-radius:6px;border:1px solid #ddd;'">
+        🇫🇷 
+    </a>
+
+    <!-- Arabe -->
+    <a th:href="@{/(lang=ar)}"
+       style="text-decoration:none;font-size:0.85rem;
+              font-weight:600;padding:0.3rem 0.7rem;
+              border-radius:6px;transition:all 0.2s;"
+       th:style="${#locale.language == 'ar'}
+                 ? 'background:#2d6a4f;color:white;
+                    padding:0.3rem 0.7rem;border-radius:6px;'
+                 : 'color:#555;padding:0.3rem 0.7rem;
+                    border-radius:6px;border:1px solid #ddd;'">
+        🇲🇦 
+    </a>
+
+</div>
+        <!-- Brand -->
+        <a class="navbar-brand" th:href="@{/}">
+            <span class="brand-name">CharityApp</span>
+        </a>
+
+        <!-- Toggle mobile -->
+        <button class="navbar-toggler border-0" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+
+        <!-- Menu -->
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav mx-auto gap-1">
+                <li class="nav-item">
+                    <a class="nav-link" href="#comment"
+                    th:text="#{how.title}"
+                    >Comment ça marche</a>
+                </li>
+                   <li class="nav-item">
+                        <a class="nav-link" th:href="${user != null} ? @{/explore}: 
+                        @{/login}
+                        "
+                        th:text="#{nav.explore}"
+                        >
+                            <i class="bi bi-search me-1"></i>Explorer
+                        </a>
+                    </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#actions"
+                    th:text="#{hero.stat.actions}"
+                    >Actions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#pourquoi"
+                    th:text="#{why.title}"
+                    >Pourquoi nous</a>
+                </li>
+            </ul>
+
+            <!-- ══ Non connecté ══════════════════════════ -->
+            <div th:if="${user == null}"
+                 class="d-flex align-items-center gap-2">
+                <a th:href="@{/login}" class="btn-nav-login"
+                th:text="#{nav.login}"
+                >
+                    Se connecter
+                </a>
+                <a th:href="@{/register}" class="btn-nav-register"
+                th:text="#{nav.register}"
+                >
+                    S'inscrire <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            <!-- ══ Connecté ══════════════════════════════ -->
+            <div th:if="${user != null}"
+                 class="d-flex align-items-center gap-2">
+
+                <!-- USER -->
+                <div th:if="${user.role.name() == 'USER'}"
+                     class="d-flex align-items-center gap-2">
+                    <a th:href="@{/dashboard}" class="btn-nav-login">
+                        <i class="bi bi-grid me-1"></i>Dashboard
+                    </a>
+                    <a th:href="@{/organisation/create}" class="btn-nav-register"
+                    th:if="${organisation == null}"
+                    >
+                        <i class="bi bi-plus-circle me-1"></i>Créer organisation
+                    </a>
+
+                    <a th:if="${organisation != null}"
+                    th:href="@{/organisation/profile}"
+                    class="btn-nav-register"
+                    
+                    >
+
+                        <i  class="bi bi-building me-1" >Mon organisation</i>
+                    </a>
+
+                </div>
+
+                <!-- ORGANIZATION -->
+                <div th:if="${user.role.name() == 'ORGANIZATION'}"
+                     class="d-flex align-items-center gap-2">
+                    <a th:href="@{/organisation/profile}" class="btn-nav-login">
+                        <i class="bi bi-building me-1"></i>Mon organisation
+                    </a>
+                    <a th:href="@{/actions}" class="btn-nav-login">
+                        <i class="bi bi-heart me-1"></i>Mes actions
+                    </a>
+                    <a th:href="@{/dashboard}" class="btn-nav-register">
+                        <i class="bi bi-grid me-1"></i>Dashboard
+                    </a>
+                </div>
+
+                <!-- ADMIN -->
+                <div th:if="${user.role.name() == 'ADMIN'}"
+                     class="d-flex align-items-center gap-2">
+                    <a th:href="@{/admin/dashboard}" class="btn-nav-register">
+                        <i class="bi bi-shield-check me-1"></i>Admin Dashboard
+                    </a>
+                </div>
+
+                <!-- Nom + Logout pour tous -->
+               <!-- Remplace le dropdown user par -->
+<div class="dropdown">
+    <button class="btn btn-outline-secondary btn-sm dropdown-toggle"
+            type="button" data-bs-toggle="dropdown">
+
+        <!-- ✅ Photo si existe -->
+        <img th:if="${user.profilePicture != null}"
+             th:src="@{'/uploads/'+${user.profilePicture}}"
+             style="width:24px;height:24px;border-radius:50%;
+                    object-fit:cover;margin-right:0.3rem;"/>
+
+        <!-- Initiale si pas de photo -->
+        <span th:if="${user.profilePicture == null}"
+              style="width:24px;height:24px;background:#2d6a4f;
+                     border-radius:50%;display:inline-flex;
+                     align-items:center;justify-content:center;
+                     color:white;font-weight:700;font-size:0.75rem;
+                     margin-right:0.3rem;"
+              th:text="${user.firstName.charAt(0)}">
+        </span>
+
+        <span th:text="${user.firstName}"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+            <a class="dropdown-item" href="/profile">
+                <i class="bi bi-person me-2"></i>Mon profil
+            </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+            <a class="dropdown-item text-danger"
+               th:href="@{/logout}">
+                <i class="bi bi-box-arrow-right me-1"></i>
+                Déconnexion
+            </a>
+        </li>
+    </ul>
+</div>
+
+            </div>
+        </div>
+        <!-- ✅ Switcher langue — ajoute dans la navbar -->
+
+    </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════════════ -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+
+            <div class="hero-badge">
+                <i class="bi bi-stars"></i>
+                <span th:text="#{hero.badge}"></span>
+            </div>
+
+            <h1>
+                <span th:text="#{hero.title}"></span><br>
+                <span th:text="#{hero.title.span}"
+                  style="color:#95d5b2"
+                >
+        🌍
+                </span>
+            </h1>
+
+            <p th:text="#{hero.description}">
+                Rejoignez des milliers de personnes et organisations
+                qui agissent chaque jour pour un monde plus juste et solidaire.
+            </p>
+
+            <div class="hero-buttons">
+                <a th:href="@{/register}" class="btn-hero-primary"
+                th:if="${user ==null}"
+                th:text="#{hero.btn.start}"
+                >
+                    <i class="bi bi-heart-fill"></i>
+                    Commencer maintenant
+                </a>
+                <a href="#actions" class="btn-hero-secondary"
+                th:text="#{hero.btn.explore}"
+                >
+                    <i class="bi bi-play-circle"></i>
+                    Voir les Organisations
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="number" th:text="${totalUsers + '+'}">0</div>
+                    <div class="label">Membres</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="number" th:text="${totalActions + '+'}">0</div>
+                    <div class="label">Actions</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="number" th:text="${totalDonations + 'MAD'}">0</div>
+                    <div class="label">Total Donations</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="number" th:text="${totalOrganisations }"></div>
+                    <div class="label">Total organisations</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     COMMENT ÇA MARCHE
+═══════════════════════════════════════════════════════ -->
+<section class="section" id="comment">
+    <div class="container">
+
+        <div class="text-center mb-5">
+            <span class="section-badge"
+            th:text="#{how.badge}"
+            >Simple & Rapide</span>
+            <h2 class="section-title"
+            th:text="#{how.title}"
+            >Comment ça marche ?</h2>
+            <p class="section-subtitle mx-auto"
+            th:text="#{how.subtitle}"
+            >
+                En 3 étapes simples, commencez à faire la différence
+                dans votre communauté.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">📝</div>
+                    <h4 th:text="#{how.step1.title}">1. Créez votre compte</h4>
+                    <p th:text="#{how.step1.desc}">Inscrivez-vous gratuitement en tant qu'utilisateur
+                       ou organisation en quelques secondes.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">🔍</div>
+                    <h4 th:text="#{how.step2.title}">2. Explorez les actions</h4>
+                    <p th:text="#{how.step2.desc}">Parcourez les actions de charité disponibles
+                       et trouvez celles qui vous correspondent.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-number">💚</div>
+                    <h4 th:text="#{how.step3.title}">3. Agissez !</h4>
+                    <p th:text="#{how.step3.desc}">Participez, faites un don ou créez votre propre
+                       action et impactez votre communauté.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     ACTIONS EN COURS
+═══════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════════
+     ORGANISATIONS APPROUVÉES
+<!-- ══════════════════════════════════════════════════════
+     ORGANISATIONS APPROUVÉES
+═══════════════════════════════════════════════════════ -->
+<section class="actions-section" id="actions">
+    <div class="container">
+
+        <div class="d-flex justify-content-between align-items-end mb-5">
+            <div>
+                <span class="section-badge" th:text="#{orgs.badge}"></span>
+                <h2 class="section-title mb-0" 
+                th:text="#{orgs.title}"
+                >Nos organisations partenaires</h2>
+            </div>
+            <spa class="text-muted small"
+                  th:text="${totalElements } +' '+  #{orgs.actives}" >
+            </span>
+        </div>
+
+        <!-- Aucune organisation -->
+        <div th:if="${approvedOrgs.empty}" class="text-center py-5">
+            <div style="font-size:3rem">🏢</div>
+            <h5 class="mt-3 text-muted" th:text="#{orgs.none}">Aucune organisation approuvée pour l'instant</h5>
+            <p class="text-muted small">Soyez le premier à créer une organisation !</p>
+        </div>
+
+        <!-- Liste des organisations -->
+        <div th:if="${!approvedOrgs.empty}" class="row g-4">
+           <div class="col-md-4" th:each="org : ${approvedOrgs}">
+
+       <!-- Carte cliquable -->
+    <a th:href="${user!=null} ? @{/organisation/{id}(id=${org.id})}
+        : @{/login}"
+       style="text-decoration:none; color:inherit; display:block;"
+       >
+
+        <div class="action-card" style="cursor:pointer; transition: all 0.2s;"
+             onmouseover="this.style.transform='translateY(-5px)'"
+             onmouseout="this.style.transform='translateY(0)'">
+
+            <!-- Header avec logo -->
+            <div style="height:140px; background:linear-gradient(135deg,#1b4332,#2d6a4f);
+                        display:flex; align-items:center; justify-content:center;
+                        position:relative; overflow:hidden;">
+                <img th:if="${org.logo != null}"
+                     th:src="@{'/uploads/' + ${org.logo}}"
+                     style="width:180px;height:120px;object-fit:cover;
+                            border-radius:12px;border:3px solid rgba(255,255,255,0.3);"
+                     alt="Logo"/>
+                <div th:if="${org.logo == null}"
+                     style="width:80px;height:80px;background:rgba(255,255,255,0.15);
+                            border-radius:12px;border:3px solid rgba(255,255,255,0.2);
+                            display:flex;align-items:center;
+                            justify-content:center;font-size:2.5rem;">
+                    🏢
+                </div>
+                <div style="position:absolute;top:12px;right:12px;
+                            background:#95d5b2;color:#1b4332;
+                            padding:0.2rem 0.6rem;border-radius:50px;
+                            font-size:0.72rem;font-weight:700;">
+                    ✓ Vérifié
+                </div>
+            </div>
+
+            <!-- Corps -->
+            <div class="action-body">
+                <h5 th:text="${org.name}"
+                    style="font-weight:700;font-size:1rem;
+                           margin-bottom:0.5rem;color:#1a1a2e;">
+                </h5>
+                <p th:text="${org.description != null and org.description.length() > 100
+                             ? org.description.substring(0,100) + '...'
+                             : org.description}"
+                   style="color:#888;font-size:0.87rem;line-height:1.6;margin-bottom:1rem;">
+                </p>
+
+                <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem;">
+                    <div th:if="${org.phone != null}"
+                         style="font-size:0.82rem;color:#666;
+                                display:flex;align-items:center;gap:0.4rem;">
+                        <i class="bi bi-telephone" style="color:#2d6a4f;"></i>
+                        <span th:text="${org.phone}"></span>
+                    </div>
+                    <div th:if="${org.legalAddress != null}"
+                         style="font-size:0.82rem;color:#666;
+                                display:flex;align-items:center;gap:0.4rem;">
+                        <i class="bi bi-geo-alt" style="color:#2d6a4f;"></i>
+                        <span th:text="${org.legalAddress}"></span>
+                    </div>
+                </div>
+
+                <!-- ✅ Bouton voir les actions -->
+                <div style="display:flex; align-items:center; gap:0.4rem;
+                            color:#2d6a4f; font-weight:600; font-size:0.88rem;">
+                    <i class="bi bi-arrow-right-circle"></i>
+                    Voir les actions
+                </div>
+            </div>
+        </div>
+    </a>
+</div>
+        </div>
+
+        <!--  PAGINATION -->
+        <div th:if="${totalPages > 1}"
+             class="d-flex justify-content-center align-items-center gap-2 mt-5">
+
+            <!-- ici c'est le button arriere  -->
+            <a th:if="${hasPrevious}"
+               th:href="@{/(page=${currentPage - 1})} + '#actions'"
+               class="pagination-btn">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+            <span th:if="${!hasPrevious}" class="pagination-btn disabled">
+                <i class="bi bi-chevron-left"></i>
+            </span>
+
+            <!-- Numéros de pages -->
+            <th:block th:each="i : ${#numbers.sequence(0, totalPages -1)}">
+
+                <!-- Pages proches de la page courante -->
+                <a th:if="${i >= currentPage - 2 and i <= currentPage + 2}"
+                   th:href="@{/(page=${i})} + '#actions'"
+                   class="pagination-num"
+                   th:classappend="${i == currentPage} ? ' active' : ''"
+                   th:text="${i + 1}">
+                </a>
+
+                <!-- Ellipsis début -->
+                <span th:if="${i == 1 and currentPage > 3}"
+                      class="pagination-dots">...</span>
+
+                <!-- Ellipsis fin -->
+                <span th:if="${i == totalPages - 2 and currentPage < totalPages - 4}"
+                      class="pagination-dots">...</span>
+
+            </th:block>
+
+            <!-- et la button suivant -->
+            <a th:if="${hasNext}"
+               th:href="@{/(page=${currentPage + 1})} + '#actions'"
+               class="pagination-btn">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+            <span th:if="${!hasNext}" class="pagination-btn disabled">
+                <i class="bi bi-chevron-right"></i>
+            </span>
+
+        </div>
+
+
+        <!-- Info pagination -->
+        <div th:if="${totalPages > 1}"
+             class="text-center mt-3"
+             style="font-size:0.85rem; color:#999;">
+            Page
+            <span th:text="${currentPage + 1}"></span>
+            sur
+            <span th:text="${totalPages}"></span>
+            —
+            <span th:text="${totalElements}"></span>
+            organisations
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     POURQUOI NOUS
+═══════════════════════════════════════════════════════ -->
+<section class="why-section" id="pourquoi">
+    <div class="container">
+
+        <div class="text-center mb-5">
+            <span class="section-badge"
+                  style="background:rgba(255,255,255,0.15);color:#95d5b2;"
+                  th:text="#{why.badge}"
+                  >
+                Nos valeurs
+            </span>
+            <h2 class="section-title" style="color:white;"
+            th:text="#{why.title}"
+            >
+                Pourquoi choisir CharityApp ?
+            </h2>
+            <p class="section-subtitle mx-auto" style="color:rgba(255,255,255,0.75);"
+            th:text="#{why.subtitle}"
+            >
+                Une plateforme transparente, sécurisée et facile à utiliser.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3 col-6">
+                <div class="why-card">
+                    <div class="why-icon">🔒</div>
+                    <h5
+                    th:text="#{why.secure.title}"
+                    >100% Sécurisé</h5>
+                    <p th:text="#{why.secure.desc}">Vos données et transactions sont protégées.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="why-card">
+                    <div class="why-icon">👁️</div>
+                    <h5 th:text="#{why.transparent.title}">Transparent</h5>
+                    <p th:text="#{why.transparent.desc}">Suivez chaque don et voyez son impact réel.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="why-card">
+                    <div class="why-icon">⚡</div>
+                    <h5 th:text="#{why.fast.title}">Rapide</h5>
+                    <p th:text="#{why.fast.desc}">Inscription et participation en quelques clics.</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="why-card">
+                    <div class="why-icon">🌍</div>
+                    <h5 th:text="#{why.local.title}">Impact local</h5>
+                    <p th:text="#{why.local.desc}">Des actions concrètes près de chez vous.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     CTA
+═══════════════════════════════════════════════════════ -->
+<section class="cta-section">
+    <div class="container">
+        <div style="font-size:3rem; margin-bottom:1rem;"></div>
+        <h2 th:text="#{cta.title}">Prêt à faire la différence ?</h2>
+        <p th:if="${user == null}"
+        th:text="#{cta.desc}"
+        >
+            Rejoignez notre communauté et commencez à agir
+            pour un monde meilleur dès aujourd'hui.
+        </p>
+        <a th:href="@{/register}" class="btn-cta"
+        th:if="${user == null}"
+        th:text="#{cta.btn}"
+        >
+            <i class="bi bi-heart-fill"></i>
+            Rejoindre gratuitement
+        </a>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════════ -->
+<footer>
+    <div class="container">
+        <div class="row g-4">
+
+            <div class="col-md-4">
+                <div class="footer-brand">
+                    <div class="brand-icon" style="width:34px;height:34px;font-size:1rem;">🤝</div>
+                    <span class="footer-brand-name">CharityApp</span>
+                </div>
+                <p th:text="#{footer.desc}">Une plateforme dédiée aux actions de charité
+                   et à la solidarité au Maroc.</p>
+            </div>
+
+            <div class="col-md-2 offset-md-2">
+                <div class="footer-title" 
+                th:text="#{footer.nav}"
+                >Navigation</div>
+                <ul class="footer-links">
+                    <li><a href="#comment"th:text="#{how.title}">Comment ça marche</a></li>
+                    <li><a href="#actions" th:text="#{hero.stat.actions}">Actions</a></li>
+                    <li><a href="#pourquoi" th:text="#{why.title}">Pourquoi nous</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-2" th:if="${user == null}">
+                <div class="footer-title"th:text="#{footer.account}" >Compte</div>
+                <ul class="footer-links">
+                    <li><a th:href="@{/login} " th:if="${user == null}">Se connecter</a></li>
+                    <li><a th:href="@{/register}" th:if="${user == null}">S'inscrire</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-2">
+                <div class="footer-title" th:text="#{footer.contact}">Contact</div>
+                <ul class="footer-links">
+                    <li><a href="#">contact@charityapp.ma</a></li>
+                    <li><a href="#">Casablanca, Maroc</a></li>
+                </ul>
+            </div>
+
+            <div class =col-md-2>
+                <div class="footer-title" th:text="#{footer.follow}">Suivez-nous</div>
+                <ul  class ="footer-links">
+                    <li>
+                        <a href="#" target="_blank">Facebook</a>
+                    </li>
+                    <li>
+                        <a href="#" target="_blank">Instagram</a>
+                    </li>
+                    <li>
+                        <a href="#" target="_blank">X</a>
+                    </li>
+                </ul>
+    
+            </div>
+        </div>
+
+
+        <div class="footer-bottom"
+        th:text="#{footer.rights}"
+        >
+            © 2026 CharityApp — Fait le mieux pour le Maroc
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

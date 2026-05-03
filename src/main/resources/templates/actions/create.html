@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer une action</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+        .navbar { background: #1b4332; padding: 1rem 2rem; }
+        .navbar-brand { color: white; font-weight: 700; font-size: 1.2rem; text-decoration: none; display: flex; align-items: center; gap: 0.6rem; }
+        .brand-icon { width: 36px; height: 36px; background: #2d6a4f; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+
+        .main-layout { display: flex; flex: 1; min-height: calc(100vh - 64px); }
+
+        .form-panel { width: 58%; padding: 3rem; overflow-y: auto; background: #fff; }
+        .form-header h2 { font-size: 1.8rem; font-weight: 700; color: #1a1a2e; margin-bottom: 0.4rem; }
+        .form-header p { color: #888; font-size: 0.95rem; margin-bottom: 2rem; }
+
+        .section-label {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; color: #2d6a4f; margin: 1.5rem 0 1rem;
+            padding-bottom: 0.5rem; border-bottom: 2px solid #d8f3dc;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .form-label { font-size: 0.85rem; font-weight: 600; color: #444; margin-bottom: 0.4rem; }
+        .form-control, .form-select {
+            border: 1.5px solid #e8e8e8; border-radius: 10px;
+            padding: 0.7rem 0.9rem; font-size: 0.92rem;
+            background: #fafafa; transition: all 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #2d6a4f; background: #fff;
+            box-shadow: 0 0 0 3px rgba(45,106,79,0.1); outline: none;
+        }
+        textarea.form-control { resize: vertical; }
+
+        .img-upload-zone {
+            border: 2px dashed #c8e6c9; border-radius: 14px;
+            padding: 1.5rem; text-align: center; cursor: pointer;
+            transition: all 0.25s; background: #f8fff9;
+        }
+        .img-upload-zone:hover { border-color: #2d6a4f; background: #f0faf4; }
+        .img-upload-zone img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 10px; }
+        .img-upload-zone input { display: none; }
+
+        .btn-submit {
+            background: #2d6a4f; color: white; border: none; border-radius: 10px;
+            padding: 0.8rem 2rem; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-submit:hover { background: #1b4332; transform: translateY(-1px); box-shadow: 0 4px 15px rgba(45,106,79,0.3); }
+        .btn-cancel { background: transparent; color: #666; border: 1.5px solid #ddd; border-radius: 10px; padding: 0.8rem 1.5rem; font-size: 0.95rem; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+        .btn-cancel:hover { border-color: #999; color: #333; }
+
+        .image-panel {
+            width: 42%; position: relative;
+            background: url('https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1200')
+                        center/cover no-repeat;
+        }
+        .image-panel::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(to bottom, rgba(27,67,50,0.3), rgba(27,67,50,0.88));
+        }
+        .image-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 3rem; color: white; z-index: 1;
+        }
+        .image-overlay h3 { font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; }
+        .image-overlay p { opacity: 0.85; font-size: 0.95rem; line-height: 1.7; }
+        .tip-card {
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px; padding: 1rem; margin-top: 1rem;
+        }
+        .tip-card p { font-size: 0.85rem; margin: 0; opacity: 0.9; }
+
+        .text-danger { font-size: 0.78rem; margin-top: 0.25rem; }
+
+        @media (max-width: 768px) {
+            .image-panel { display: none; }
+            .form-panel { width: 100%; }
+        }
+        .img-upload-zone img {
+    width:35%;
+    height: 40%;
+    object-fit: cover;      
+    object-position: center;
+    border-radius: 10px;
+}
+    </style>
+</head>
+<body>
+
+
+
+<nav class="navbar">
+    <a class="navbar-brand" href="/">
+        <div class="brand-icon">🤝</div> CharityApp
+    </a>
+    <a href="/actions" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Mes actions
+    </a>
+</nav>
+
+<div class="main-layout">
+
+    <!-- Formulaire -->
+    <div class="form-panel">
+        <div class="form-header">
+            <h2>💚 Créer une action</h2>
+            <p>Remplissez les détails de votre action de charité.</p>
+        </div>
+
+        <form th:action="@{/actions/create}"
+              th:object="${actionDTO}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <!-- Image -->
+            <div class="section-label"><i class="bi bi-image"></i> Image principale</div>
+            <div class="img-upload-zone mb-4" id="imgArea">
+                <div id="imgPreview">
+                    <div style="font-size:2.5rem; color:#95d5b2;">📸</div>
+                    <p style="color:#2d6a4f; font-weight:600; margin:0.5rem 0 0;">
+                        Cliquez pour ajouter une image
+                    </p>
+                    <p style="color:#aaa; font-size:0.82rem; margin:0.3rem 0 0;">
+                        PNG, JPG — max 5MB
+                    </p>
+                </div>
+                <input type="file" name="imageFile" id="imageFile" accept="image/*"/>
+            </div>
+
+            <!-- Infos principales -->
+            <div class="section-label"><i class="bi bi-info-circle"></i> Informations</div>
+
+            <div class="mb-3">
+                <label class="form-label">Titre *</label>
+                <input type="text" th:field="*{title}" class="form-control"
+                       placeholder="Ex: Distribution de repas à Casablanca"/>
+                <div class="text-danger" th:if="${#fields.hasErrors('title')}"
+                     th:errors="*{title}"></div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Catégorie *</label>
+                    <select th:field="*{category}" class="form-select">
+                        <option value="">-- Choisir --</option>
+                        <option th:each="cat : ${categories}"
+                                th:value="${cat}"
+                                th:text="${cat}"></option>
+                    </select>
+                    <div class="text-danger" th:if="${#fields.hasErrors('category')}"
+                         th:errors="*{category}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Lieu</label>
+                    <input type="text" th:field="*{location}" class="form-control"
+                           placeholder="Ex: Casablanca"/>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description courte</label>
+                <input type="text" th:field="*{shortDescription}" class="form-control"
+                       placeholder="Résumé en une ligne..."/>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Description complète *</label>
+                <textarea th:field="*{description}" class="form-control"
+                          rows="4" placeholder="Décrivez votre action..."></textarea>
+                <div class="text-danger" th:if="${#fields.hasErrors('description')}"
+                     th:errors="*{description}"></div>
+            </div>
+
+            <!-- Dates et montant -->
+            <div class="section-label"><i class="bi bi-calendar"></i> Dates & Objectif</div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Date de début</label>
+                    <input type="datetime-local" th:field="*{startDate}"
+                           class="form-control"/>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Date de fin</label>
+                    <input type="datetime-local" th:field="*{endDate}"
+                           class="form-control"/>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-8">
+                    <label class="form-label">Objectif de collecte</label>
+                    <input type="number" th:field="*{targetAmount}"
+                           class="form-control" placeholder="Ex: 50000"
+                           min="0" step="100"/>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Devise</label>
+                    <select th:field="*{currency}" class="form-select">
+                        <option value="MAD">MAD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="USD">USD</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 align-items-center">
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-plus-circle"></i> Créer l'action
+                </button>
+                <a href="/actions" class="btn-cancel">Annuler</a>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Image droite -->
+    <div class="image-panel">
+        <div class="image-overlay">
+            <h3>Créez de l'impact 💚</h3>
+            <p>Chaque action de charité peut changer des vies. Décrivez votre initiative avec précision pour attirer plus de participants et de donateurs.</p>
+            <div class="tip-card">
+                <p><i class="bi bi-lightbulb me-2"></i>
+                Conseil : Les actions avec une image et un objectif clair reçoivent 3x plus de dons !</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('imgArea').addEventListener('click', () => {
+        document.getElementById('imageFile').click();
+    });
+    document.getElementById('imageFile').addEventListener('change', function () {
+        const preview = document.getElementById('imgPreview');
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview"/>
+                    <p style="color:#2d6a4f;font-size:0.82rem;margin-top:0.5rem;">
+                        Cliquez pour changer
+                    </p>`;
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+</script>
+</body>
+</html>

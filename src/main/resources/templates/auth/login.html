@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:lang="${#locale.language}"
+      th:dir="${#locale.language == 'ar'} ? 'rtl' : 'ltr'">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{login.title}">Connexion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; }
+        [dir="rtl"] { font-family: 'Segoe UI', Arial, sans-serif; }
+
+        .left-panel { width: 55%; position: relative;
+                      background: url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200')
+                      center/cover no-repeat;
+                      display: flex; flex-direction: column;
+                      justify-content: flex-end; padding: 3rem; }
+        .left-panel::before { content: ''; position: absolute; inset: 0;
+                              background: linear-gradient(to bottom,
+                              rgba(27,67,50,0.3) 0%, rgba(27,67,50,0.85) 100%); }
+        .left-panel .overlay-content { position: relative; z-index: 1; color: white; }
+        .left-panel h1 { font-size: 2.4rem; font-weight: 700; line-height: 1.2; margin-bottom: 1rem; }
+        .left-panel p { font-size: 1.05rem; opacity: 0.85; max-width: 420px; line-height: 1.7; }
+        .stats { display: flex; gap: 2rem; margin-top: 2rem; }
+        .stat-item .number { font-size: 1.8rem; font-weight: 700; color: #95d5b2; }
+        .stat-item .label { font-size: 0.8rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .right-panel { width: 45%; display: flex; align-items: center;
+                       justify-content: center; background: #ffffff; padding: 3rem; }
+        .form-box { width: 100%; max-width: 400px; }
+        .brand { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 2.5rem; }
+        .brand-icon { width: 42px; height: 42px; background: #2d6a4f; border-radius: 10px;
+                      display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+        .brand-name { font-size: 1.4rem; font-weight: 700; color: #1b4332; }
+        .form-title { font-size: 1.7rem; font-weight: 700; color: #1a1a2e; margin-bottom: 0.4rem; }
+        .form-subtitle { color: #888; font-size: 0.92rem; margin-bottom: 2rem; }
+        .form-label { font-weight: 600; font-size: 0.85rem; color: #444; margin-bottom: 0.4rem; }
+        .input-group-custom { position: relative; margin-bottom: 1.2rem; }
+        .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+                      color: #aaa; font-size: 1rem; z-index: 2; }
+        [dir="rtl"] .input-icon { left: auto; right: 14px; }
+        .form-control { padding: 0.75rem 0.9rem 0.75rem 2.6rem; border: 1.5px solid #e8e8e8;
+                        border-radius: 10px; font-size: 0.95rem; transition: all 0.2s; background: #fafafa; }
+        [dir="rtl"] .form-control { padding: 0.75rem 2.6rem 0.75rem 0.9rem; text-align: right; }
+        .form-control:focus { border-color: #2d6a4f; background: #fff;
+                              box-shadow: 0 0 0 3px rgba(45,106,79,0.1); outline: none; }
+        .btn-login { width: 100%; padding: 0.8rem; background: #2d6a4f; color: white; border: none;
+                     border-radius: 10px; font-size: 1rem; font-weight: 600; margin-top: 0.5rem;
+                     transition: all 0.2s; cursor: pointer; }
+        .btn-login:hover { background: #1b4332; transform: translateY(-1px); }
+        .divider { text-align: center; color: #ccc; font-size: 0.85rem; margin: 1.5rem 0; position: relative; }
+        .divider::before, .divider::after { content: ''; position: absolute; top: 50%;
+                                             width: 42%; height: 1px; background: #eee; }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+        .register-link { text-align: center; font-size: 0.9rem; color: #777; }
+        .register-link a { color: #2d6a4f; font-weight: 600; text-decoration: none; }
+        .alert { border-radius: 10px; font-size: 0.88rem; padding: 0.7rem 1rem; margin-bottom: 1.2rem; }
+        .error-msg { color: #e63946; font-size: 0.78rem; margin-top: 0.25rem; }
+
+        /* Lang switcher */
+        .lang-switcher { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .lang-btn { font-size: 0.82rem; font-weight: 600; padding: 0.3rem 0.7rem;
+                    border-radius: 6px; text-decoration: none; transition: all 0.2s;
+                    border: 1.5px solid #ddd; color: #555; }
+        .lang-btn.active { background: #2d6a4f; color: white; border-color: #2d6a4f; }
+
+        @media (max-width: 768px) { .left-panel { display: none; } .right-panel { width: 100%; } }
+    </style>
+</head>
+
+<body>
+
+<!-- Panneau gauche image -->
+<div class="left-panel">
+    <div class="overlay-content">
+        <h1>Ensemble, faisons<br>la différence 🌍</h1>
+        <p>Rejoignez des milliers de personnes qui agissent
+           chaque jour pour un monde meilleur.</p>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="number">12K+</div>
+                <div class="label" th:text="#{hero.stat.members}"></div>
+            </div>
+            <div class="stat-item">
+                <div class="number">340</div>
+                <div class="label" th:text="#{hero.stat.actions}"></div>
+            </div>
+            <div class="stat-item">
+                <div class="number">98%</div>
+                <div class="label">Satisfaction</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Panneau droit formulaire -->
+<div class="right-panel">
+    <div class="form-box">
+
+        <!-- Lang switcher -->
+        <div class="lang-switcher">
+            <a th:href="@{/login(lang=fr)}" class="lang-btn"
+               th:classappend="${#locale.language == 'fr'} ? ' active' : ''">🇫🇷 FR</a>
+            <a th:href="@{/login(lang=ar)}" class="lang-btn"
+               th:classappend="${#locale.language == 'ar'} ? ' active' : ''">🇲🇦 AR</a>
+        </div>
+
+        <div class="brand">
+            <div class="brand-icon">🤝</div>
+            <span class="brand-name">CharityApp</span>
+        </div>
+
+        <h2 class="form-title" th:text="#{login.title}"></h2>
+        <p class="form-subtitle">Connectez-vous à votre compte</p>
+
+        <!-- Alerts -->
+        <div th:if="${param.success}" class="alert alert-success"
+             th:text="#{login.success}"></div>
+        <div th:if="${param.logout}" class="alert alert-info"
+             th:text="#{login.logout}"></div>
+        <div th:if="${error}" class="alert alert-danger"
+             th:text="${error}"></div>
+
+        <form th:action="@{/login}" th:object="${loginDTO}" method="post">
+
+            <div>
+                <label class="form-label" th:text="#{login.email}"></label>
+                <div class="input-group-custom">
+                    <i class="bi bi-envelope input-icon"></i>
+                    <input type="email" th:field="*{email}"
+                           class="form-control"
+                           th:placeholder="#{login.email}"/>
+                </div>
+                <div class="error-msg" th:if="${#fields.hasErrors('email')}"
+                     th:errors="*{email}"></div>
+            </div>
+
+            <div>
+                <label class="form-label" th:text="#{login.password}"></label>
+                <div class="input-group-custom">
+                    <i class="bi bi-lock input-icon"></i>
+                    <input type="password" th:field="*{password}"
+                           class="form-control" placeholder="••••••••"/>
+                </div>
+                <div class="error-msg" th:if="${#fields.hasErrors('password')}"
+                     th:errors="*{password}"></div>
+            </div>
+
+            <button type="submit" class="btn-login" th:text="#{login.btn}"></button>
+        </form>
+        
+
+        <div class="divider">ou</div>
+
+        <p class="register-link">
+            <span th:text="#{login.no.account}"></span>
+            <a th:href="@{/register}" th:text="#{login.register}"></a>
+        </p>
+    </div>
+</div>
+
+<script>
+    history.pushState(null, null, location.href);
+    window.onpopstate = function() { history.pushState(null, null, location.href); };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer une organisation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar { background: #1b4332; padding: 1rem 2rem; }
+        .navbar-brand {
+            display: flex; align-items: center; gap: 0.6rem;
+            text-decoration: none; color: white; font-weight: 700; font-size: 1.2rem;
+        }
+        .brand-icon {
+            width: 36px; height: 36px; background: #2d6a4f;
+            border-radius: 8px; display: flex; align-items: center;
+            justify-content: center; font-size: 1.1rem;
+        }
+
+        .main-layout {
+            display: flex;
+            flex: 1;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* ══ Panneau gauche : formulaire ══ */
+        .form-panel {
+            width: 55%;
+            padding: 3rem;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        .form-header { margin-bottom: 2rem; }
+        .form-header h2 {
+            font-size: 1.8rem; font-weight: 700;
+            color: #1a1a2e; margin-bottom: 0.4rem;
+        }
+        .form-header p { color: #888; font-size: 0.95rem; }
+
+        .section-label {
+            font-size: 0.75rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            color: #2d6a4f; margin: 1.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #d8f3dc;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .form-label {
+            font-size: 0.85rem; font-weight: 600;
+            color: #444; margin-bottom: 0.4rem;
+        }
+
+        .form-control, .form-select {
+            border: 1.5px solid #e8e8e8;
+            border-radius: 10px;
+            padding: 0.7rem 0.9rem;
+            font-size: 0.92rem;
+            background: #fafafa;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #2d6a4f;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(45,106,79,0.1);
+            outline: none;
+        }
+
+        textarea.form-control { resize: vertical; }
+
+        /* Zone upload logo */
+        .logo-upload-zone {
+            border: 2px dashed #c8e6c9;
+            border-radius: 14px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            background: #f8fff9;
+            position: relative;
+        }
+        .logo-upload-zone:hover {
+            border-color: #2d6a4f;
+            background: #f0faf4;
+        }
+        .logo-upload-zone img {
+            width: 90px; height: 90px;
+            object-fit: cover; border-radius: 12px;
+            border: 3px solid #d8f3dc;
+        }
+        .logo-upload-zone input { display: none; }
+
+        .btn-submit {
+            background: #2d6a4f; color: white;
+            border: none; border-radius: 10px;
+            padding: 0.8rem 2rem; font-size: 1rem;
+            font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-submit:hover {
+            background: #1b4332;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(45,106,79,0.3);
+        }
+
+        .btn-cancel {
+            background: transparent; color: #666;
+            border: 1.5px solid #ddd; border-radius: 10px;
+            padding: 0.8rem 1.5rem; font-size: 0.95rem;
+            cursor: pointer; text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-cancel:hover { border-color: #999; color: #333; }
+
+        /* ══ Panneau droit : image ══ */
+        .image-panel {
+            width: 45%;
+            position: relative;
+          background: url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200')
+                center/cover no-repeat;
+        }
+        .image-panel::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(27,67,50,0.3) 0%,
+                rgba(27,67,50,0.85) 100%
+            );
+        }
+        .image-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 3rem; color: white; z-index: 1;
+        }
+        .image-overlay h3 {
+            font-size: 1.8rem; font-weight: 700;
+            line-height: 1.3; margin-bottom: 1rem;
+        }
+        .image-overlay p {
+            opacity: 0.85; font-size: 0.95rem;
+            line-height: 1.7; margin-bottom: 1.5rem;
+        }
+        .steps { display: flex; flex-direction: column; gap: 0.8rem; }
+        .step {
+            display: flex; align-items: center; gap: 0.8rem;
+            font-size: 0.88rem; opacity: 0.9;
+        }
+        .step-num {
+            width: 28px; height: 28px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 0.82rem; font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .text-danger { font-size: 0.78rem; margin-top: 0.25rem; }
+
+        @media (max-width: 768px) {
+            .image-panel { display: none; }
+            .form-panel { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <div class="brand-icon">🤝</div>
+            CharityApp
+        </a>
+        <a href="/" class="btn btn-outline-light btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Retour
+        </a>
+    </div>
+</nav>
+
+<div class="main-layout">
+
+    <!-- ══ Formulaire ══════════════════════════════════ -->
+    <div class="form-panel">
+        <div class="form-header">
+            <h2>🏢 Créer votre organisation</h2>
+            <p>Remplissez les informations. Votre profil sera validé par un administrateur.</p>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger rounded-3 mb-3" th:text="${error}"></div>
+
+        <form th:action="@{/organisation/create}"
+              th:object="${organisationDTO}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <!-- Logo -->
+            <div class="section-label">
+                <i class="bi bi-image"></i> Logo de l'organisation
+            </div>
+
+            <div class="logo-upload-zone mb-4" id="logoArea">
+                <div id="logoPreview">
+                    <div style="font-size:2.5rem; color:#95d5b2; margin-bottom:0.5rem;">🏢</div>
+                    <p style="color:#2d6a4f; font-weight:600; margin:0;">
+                        Cliquez pour ajouter un logo
+                    </p>
+                    <p style="color:#aaa; font-size:0.82rem; margin:0.3rem 0 0;">
+                        PNG, JPG — max 5MB
+                    </p>
+                </div>
+                <input type="file" name="logoFile" id="logoFile" accept="image/*"/>
+            </div>
+
+            <!-- Infos principales -->
+            <div class="section-label">
+                <i class="bi bi-building"></i> Informations principales
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Nom de l'organisation *</label>
+                <input type="text" th:field="*{name}"
+                       class="form-control" placeholder="Ex: Association Al Khir"/>
+                <div class="text-danger" th:if="${#fields.hasErrors('name')}"
+                     th:errors="*{name}"></div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Adresse légale *</label>
+                    <input type="text" th:field="*{legalAddress}"
+                           class="form-control" placeholder="Ex: 12 Rue Hassan II"/>
+                    <div class="text-danger" th:if="${#fields.hasErrors('legalAddress')}"
+                         th:errors="*{legalAddress}"></div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Numéro fiscal *</label>
+                    <input type="text" th:field="*{taxId}"
+                           class="form-control" placeholder="Ex: IF-123456"/>
+                    <div class="text-danger" th:if="${#fields.hasErrors('taxId')}"
+                         th:errors="*{taxId}"></div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Téléphone</label>
+                    <input type="text" th:field="*{phone}"
+                           class="form-control" placeholder="+212 6xx xxx xxx"/>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Site web</label>
+                    <input type="text" th:field="*{website}"
+                           class="form-control" placeholder="https://..."/>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="section-label">
+                <i class="bi bi-file-text"></i> Description
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description *</label>
+                <textarea th:field="*{description}" class="form-control"
+                          rows="3" placeholder="Décrivez votre organisation..."></textarea>
+                <div class="text-danger" th:if="${#fields.hasErrors('description')}"
+                     th:errors="*{description}"></div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">Mission</label>
+                <textarea th:field="*{mission}" class="form-control"
+                          rows="2" placeholder="Quelle est la mission de votre organisation ?"></textarea>
+            </div>
+
+            <div class="d-flex gap-3 align-items-center">
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-send"></i> Soumettre pour validation
+                </button>
+                <a href="/" class="btn-cancel">Annuler</a>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- ══ Image droite ════════════════════════════════ -->
+    <div class="image-panel">
+        <div class="image-overlay">
+            <h3>Rejoignez notre réseau d'organisations ❤️</h3>
+            <p>Créez votre profil et commencez à gérer des actions de charité impactantes.</p>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <span>Remplissez les informations de votre organisation</span>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <span>Soumettez pour validation par l'admin</span>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <span>Une fois approuvé, créez vos actions de charité</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('logoArea').addEventListener('click', () => {
+        document.getElementById('logoFile').click();
+    });
+
+    document.getElementById('logoFile').addEventListener('change', function () {
+        const preview = document.getElementById('logoPreview');
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Logo"/>
+                    <p style="color:#2d6a4f;font-size:0.82rem;margin-top:0.5rem;">
+                        Cliquez pour changer
+                    </p>
+                `;
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+</script>
+</body>
+</html>
