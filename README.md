@@ -22,7 +22,6 @@
 - [Variables d'environnement](#-variables-denvironnement)
 - [Déploiement Docker](#-déploiement-docker)
 - [Déploiement Railway](#-déploiement-railway)
-- [Captures d'écran](#-captures-décran)
 - [Auteur](#-auteur)
 
 ---
